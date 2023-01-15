@@ -1,9 +1,22 @@
 import { Text3D } from "@react-three/drei";
-import React from "react";
+import { useThree } from "@react-three/fiber";
+import React, { useEffect } from "react";
 import { useMemo } from "react";
 import * as THREE from "three";
+import { MeshBVH, MeshBVHVisualizer } from "three-mesh-bvh";
 
 const font = "./fonts/pacifico/pacifico-regular-normal-400.json";
+
+const vertexShader = `
+  varying vec3 Normal;
+  varying vec3 Position;
+
+  void main() {
+    Normal = normalize(normalMatrix * normal);
+    Position = vec3(modelViewMatrix * vec4(position, 1.0));
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
 
 const fragmentShader = `
   varying vec3 Normal;
@@ -34,18 +47,9 @@ const fragmentShader = `
     gl_FragColor = vec4(blue*phong(), 1.0);
 }`;
 
-const vertexShader = `
-  varying vec3 Normal;
-  varying vec3 Position;
-
-  void main() {
-    Normal = normalize(normalMatrix * normal);
-    Position = vec3(modelViewMatrix * vec4(position, 1.0));
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
 export const CustomText = () => {
+  const ref = React.useRef<THREE.Mesh>();
+  const { scene } = useThree();
   const data = useMemo(
     () => ({
       uniforms: {
@@ -62,17 +66,30 @@ export const CustomText = () => {
     []
   );
 
+  useEffect(() => {
+    if (ref.current) {
+      const bvh = new MeshBVH(ref.current.geometry);
+      ref.current.geometry.boundsTree = bvh;
+
+      const visualizer = new MeshBVHVisualizer(ref.current, 10);
+      scene.add(visualizer);
+    }
+  }, [ref]);
+
   return (
-    <Text3D
-      font={font}
-      scale={1}
-      letterSpacing={0.03}
-      height={0.01}
-      curveSegments={32}
-      position={[-2, 0, 0]}
-    >
-      {`pepper`}
-      <shaderMaterial attach={"material"} {...data} />
-    </Text3D>
+    <>
+      <Text3D
+        ref={ref}
+        font={font}
+        scale={1}
+        letterSpacing={0.03}
+        height={0.01}
+        curveSegments={32}
+        position={[-2, 0, 0]}
+      >
+        {`three.js`}
+        <shaderMaterial attach={"material"} {...data} />
+      </Text3D>
+    </>
   );
 };
