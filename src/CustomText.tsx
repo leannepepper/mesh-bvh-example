@@ -1,80 +1,100 @@
 import { Text3D } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { useMemo } from "react";
 import * as THREE from "three";
+import { InstancedMesh, Mesh } from "three";
 import { MeshBVH, MeshBVHVisualizer } from "three-mesh-bvh";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry";
 
 const font = "./fonts/pacifico/pacifico-regular-normal-400.json";
 
-const vertexShader = `
-  varying vec3 Normal;
-  varying vec3 Position;
+const Voxels = ({ bvh, model }: { bvh: MeshBVH; model: Mesh }) => {
+  const resolution = 10;
+  const totalCount = resolution ** 3;
+  const ref = React.useRef<InstancedMesh>();
 
-  void main() {
-    Normal = normalize(normalMatrix * normal);
-    Position = vec3(modelViewMatrix * vec4(position, 1.0));
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
+  //   console.log("Voxels", { bvh }, { model });
 
-const fragmentShader = `
-  varying vec3 Normal;
-  varying vec3 Position;
+  const voxelGeometry = useMemo(() => {
+    const geometry = new RoundedBoxGeometry(0.1, 0.1, 0.1, 0.1, 0.1);
+    geometry.computeBoundingBox();
+    return geometry;
+  }, []);
 
-  uniform vec3 Ka;
-  uniform vec3 Kd;
-  uniform vec3 Ks;
-  uniform vec4 LightPosition;
-  uniform vec3 LightIntensity;
-  uniform float Shininess;
+  useLayoutEffect(() => {
+    ref.current.setMatrixAt(0, new THREE.Matrix4());
 
-  vec3 phong() {
-    vec3 n = normalize(Normal);
-    vec3 s = normalize(vec3(LightPosition) - Position);
-    vec3 v = normalize(vec3(-Position));
-    vec3 r = reflect(-s, n);
+    const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3().setScalar(0.5);
+    const worldMatrix = new THREE.Matrix4();
+    const box = new THREE.Box3();
+    const invMat = new THREE.Matrix4().copy(model.matrixWorld).invert();
 
-    vec3 ambient = Ka;
-    vec3 diffuse = Kd * max(dot(s, n), 0.0);
-    vec3 specular = Ks * pow(max(dot(r, v), 0.0), Shininess);
+    const ray = new THREE.Ray();
+    ray.direction.set(0, 0, 1);
 
-    return LightIntensity * (ambient + diffuse + specular);
-  }
+    let voxelCount = 0;
 
-  void main() {
-    vec3 blue = vec3(0.0, 0.0, 1.0);
-    gl_FragColor = vec4(blue*phong(), 1.0);
-}`;
+    for (let y = 0; y < resolution; y++) {
+      for (let x = 0; x < resolution; x++) {
+        for (let z = 0; z < resolution; z++) {
+          position
+            .set(
+              x / resolution - 0.5,
+              y / resolution - 0.5,
+              z / resolution - 0.5
+            )
+            .multiplyScalar(2);
+          box.min.setScalar(-0.5 * 2).add(position);
+          box.max.setScalar(0.5 * 2).add(position);
+
+          const res = bvh.intersectsBox(box, invMat);
+
+          if (res) {
+            voxelCount++;
+
+            worldMatrix.compose(position, quaternion, scale);
+            ref.current.setMatrixAt(voxelCount, worldMatrix);
+            ref.current.instanceMatrix.needsUpdate = true;
+          }
+        }
+      }
+    }
+  }, [bvh, model]);
+
+  return (
+    <instancedMesh ref={ref} args={[voxelGeometry, null, totalCount]}>
+      <meshPhongMaterial color="hotpink" />
+    </instancedMesh>
+  );
+};
 
 export const CustomText = () => {
   const ref = React.useRef<THREE.Mesh>();
   const { scene } = useThree();
-  const data = useMemo(
-    () => ({
-      uniforms: {
-        Ka: { value: new THREE.Vector3(1, 1, 1) },
-        Kd: { value: new THREE.Vector3(1, 1, 1) },
-        Ks: { value: new THREE.Vector3(1, 1, 1) },
-        LightIntensity: { value: new THREE.Vector4(0.5, 0.5, 0.5, 1.0) },
-        LightPosition: { value: new THREE.Vector4(0.0, 2000.0, 0.0, 1.0) },
-        Shininess: { value: 200.0 },
-      },
-      fragmentShader,
-      vertexShader,
-    }),
-    []
-  );
+  const [voxelData, setVoxelData] = React.useState<{
+    bvh: MeshBVH;
+    model: Mesh;
+  } | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current) {
-      const bvh = new MeshBVH(ref.current.geometry);
+      const bvh: MeshBVH = new MeshBVH(ref.current.geometry);
+
       ref.current.geometry.boundsTree = bvh;
 
+      setVoxelData({
+        bvh,
+        model: ref.current,
+      });
+
       const visualizer = new MeshBVHVisualizer(ref.current, 10);
+
       scene.add(visualizer);
     }
-  }, [ref]);
+  }, []);
 
   return (
     <>
@@ -88,8 +108,13 @@ export const CustomText = () => {
         position={[-2, 0, 0]}
       >
         {`three.js`}
-        <shaderMaterial attach={"material"} {...data} />
+        <meshPhongMaterial
+          attach={"material"}
+          color={"#000000"}
+          wireframe={true}
+        />
       </Text3D>
+      {voxelData ? <Voxels {...voxelData} /> : null}
     </>
   );
 };
