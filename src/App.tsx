@@ -6,7 +6,7 @@ import { CustomText } from "./CustomText";
 
 export default function App() {
   return (
-    <Canvas>
+    <Canvas gl={{ localClippingEnabled: true }}>
       <Perf position="top-left" />
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
