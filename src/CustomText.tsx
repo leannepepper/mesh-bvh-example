@@ -2,7 +2,7 @@ import { Text3D } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import React, { useLayoutEffect, useEffect } from "react";
 import * as THREE from "three";
-import { Mesh } from "three";
+import { Mesh, PlaneHelper } from "three";
 import { MeshBVH, MeshBVHVisualizer } from "three-mesh-bvh";
 import { CustomLineSegments } from "./CustomLineSegments";
 
@@ -25,6 +25,7 @@ const ClippingPlane = ({ bvh, model }: { bvh: MeshBVH; model: Mesh }) => {
 
 export const CustomText = () => {
   const ref = React.useRef<THREE.Mesh>();
+
   const { scene } = useThree();
   const [data, setData] = React.useState<{
     bvh: MeshBVH;
@@ -40,9 +41,31 @@ export const CustomText = () => {
 
       const visualizer = new MeshBVHVisualizer(ref.current, 10);
       //   scene.add(visualizer);
+
+      const testPlane = new THREE.Plane().setFromCoplanarPoints(
+        new THREE.Vector3(
+          bvh.geometry.attributes.position.array[0],
+          bvh.geometry.attributes.position.array[1],
+          bvh.geometry.attributes.position.array[2] + 0.1
+        ),
+        new THREE.Vector3(
+          bvh.geometry.attributes.position.array[3],
+          bvh.geometry.attributes.position.array[4],
+          bvh.geometry.attributes.position.array[5]
+        ),
+        new THREE.Vector3(
+          bvh.geometry.attributes.position.array[6],
+          bvh.geometry.attributes.position.array[7],
+          bvh.geometry.attributes.position.array[8]
+        )
+      );
+
+      const planeHelper = new PlaneHelper(testPlane, 10, 0xff0000);
+      scene.add(planeHelper);
     }
   }, []);
 
+  useEffect(() => {}, [data]);
   return (
     <>
       <Text3D
@@ -59,17 +82,29 @@ export const CustomText = () => {
           color={0x80ee10}
           shininess={100}
           side={THREE.DoubleSide}
-          clippingPlanes={
-            [
-              // new THREE.Plane(new THREE.Vector3(0, -1, 1), 0),
-              //new THREE.Plane(new THREE.Vector3(0, 1, 1), 0),
-              // new THREE.Plane(new THREE.Vector3(-1, 0, 1), 0),
-              // new THREE.Plane(new THREE.Vector3(1, 0, 1), 0),
-            ]
-          }
+          clippingPlanes={[
+            new THREE.Plane().setFromCoplanarPoints(
+              new THREE.Vector3(
+                data.bvh.geometry.attributes.position.array[0],
+                data.bvh.geometry.attributes.position.array[1],
+                data.bvh.geometry.attributes.position.array[2] + 0.1
+              ),
+              new THREE.Vector3(
+                data.bvh.geometry.attributes.position.array[3],
+                data.bvh.geometry.attributes.position.array[4],
+                data.bvh.geometry.attributes.position.array[5]
+              ),
+              new THREE.Vector3(
+                data.bvh.geometry.attributes.position.array[6],
+                data.bvh.geometry.attributes.position.array[7],
+                data.bvh.geometry.attributes.position.array[8]
+              )
+            ),
+          ]}
         ></meshPhongMaterial>
       </Text3D>
-      <CustomLineSegments />
+
+      {/* {data && <CustomLineSegments {...data} />} */}
     </>
   );
 };
