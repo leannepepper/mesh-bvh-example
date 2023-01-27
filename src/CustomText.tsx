@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Mesh, PlaneHelper } from "three";
 import { MeshBVH, MeshBVHVisualizer } from "three-mesh-bvh";
 import { CustomLineSegments } from "./CustomLineSegments";
+import { TextWithStencil } from "./TextWithStencil";
 
 const font = "./fonts/pacifico/pacifico-regular-normal-400.json";
 
@@ -25,7 +26,7 @@ const ClippingPlane = ({ bvh, model }: { bvh: MeshBVH; model: Mesh }) => {
 
 export const CustomText = () => {
   const ref = React.useRef<THREE.Mesh>();
-
+  const localPlanes = [];
   const { scene } = useThree();
   const [data, setData] = React.useState<{
     bvh: MeshBVH;
@@ -46,29 +47,30 @@ export const CustomText = () => {
         new THREE.Vector3(
           bvh.geometry.attributes.position.array[0],
           bvh.geometry.attributes.position.array[1],
-          bvh.geometry.attributes.position.array[2] + 0.1
+          bvh.geometry.attributes.position.array[2]
         ),
         new THREE.Vector3(
-          bvh.geometry.attributes.position.array[3],
-          bvh.geometry.attributes.position.array[4],
-          bvh.geometry.attributes.position.array[5]
+          bvh.geometry.attributes.position.array[0],
+          bvh.geometry.attributes.position.array[1],
+          bvh.geometry.attributes.position.array[2]
         ),
         new THREE.Vector3(
-          bvh.geometry.attributes.position.array[6],
-          bvh.geometry.attributes.position.array[7],
-          bvh.geometry.attributes.position.array[8]
+          bvh.geometry.attributes.position.array[0],
+          bvh.geometry.attributes.position.array[1],
+          bvh.geometry.attributes.position.array[2]
         )
       );
 
-      const planeHelper = new PlaneHelper(testPlane, 10, 0xff0000);
+      const planeHelper = new PlaneHelper(testPlane, 1, 0xff0000);
       scene.add(planeHelper);
+
+      localPlanes.push(testPlane);
     }
   }, []);
 
-  useEffect(() => {}, [data]);
   return (
     <>
-      <Text3D
+      {/* <Text3D
         ref={ref}
         font={font}
         scale={1}
@@ -82,28 +84,10 @@ export const CustomText = () => {
           color={0x80ee10}
           shininess={100}
           side={THREE.DoubleSide}
-          clippingPlanes={[
-            new THREE.Plane().setFromCoplanarPoints(
-              new THREE.Vector3(
-                data.bvh.geometry.attributes.position.array[0],
-                data.bvh.geometry.attributes.position.array[1],
-                data.bvh.geometry.attributes.position.array[2] + 0.1
-              ),
-              new THREE.Vector3(
-                data.bvh.geometry.attributes.position.array[3],
-                data.bvh.geometry.attributes.position.array[4],
-                data.bvh.geometry.attributes.position.array[5]
-              ),
-              new THREE.Vector3(
-                data.bvh.geometry.attributes.position.array[6],
-                data.bvh.geometry.attributes.position.array[7],
-                data.bvh.geometry.attributes.position.array[8]
-              )
-            ),
-          ]}
+          clippingPlanes={localPlanes}
         ></meshPhongMaterial>
-      </Text3D>
-
+      </Text3D> */}
+      <TextWithStencil />
       {/* {data && <CustomLineSegments {...data} />} */}
     </>
   );
