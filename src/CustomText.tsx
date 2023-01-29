@@ -5,7 +5,6 @@ import * as THREE from "three";
 import { Mesh, PlaneHelper } from "three";
 import { MeshBVH, MeshBVHVisualizer } from "three-mesh-bvh";
 import { CustomLineSegments } from "./CustomLineSegments";
-import { TextWithStencil } from "./TextWithStencil";
 
 const font = "./fonts/pacifico/pacifico-regular-normal-400.json";
 
@@ -87,7 +86,6 @@ export const CustomText = () => {
           clippingPlanes={localPlanes}
         ></meshPhongMaterial>
       </Text3D> */}
-      <TextWithStencil />
       {/* {data && <CustomLineSegments {...data} />} */}
     </>
   );
