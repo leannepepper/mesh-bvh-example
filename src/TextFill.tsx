@@ -6,7 +6,7 @@ const vertexShader = `
   varying vec2 vUv;
   void main() {
     vUv = uv;
-    gl_Position = vec4(position.x - 2.0, position.y ,0.0, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
@@ -47,6 +47,7 @@ export function TextFill({ map, maskId }) {
         letterSpacing={0.03}
         height={0.01}
         curveSegments={32}
+        position={[-2, 0, 0.1]}
       >
         {`Three.js`}
         <shaderMaterial
