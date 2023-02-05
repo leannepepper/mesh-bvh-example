@@ -6,8 +6,8 @@ import * as THREE from "three";
 import { TextFill } from "./TextFill";
 
 const scene2 = new THREE.Scene();
+scene2.background = new THREE.Color("#a737f0");
 
-scene2.background = new THREE.Color(0xff0000);
 const target = new THREE.WebGLRenderTarget(
   window.innerWidth,
   window.innerHeight,
@@ -33,7 +33,7 @@ export function TextWithMask() {
 
   useEffect(() => {
     if (!textMask.current || !textRef.current) return;
-    textRef.current.material.envMapIntensity = 3.5;
+    //textRef.current.material.envMapIntensity = 3.5;
 
     textMask.current.material.side = THREE.DoubleSide;
     textMask.current.material.transparent = false;
