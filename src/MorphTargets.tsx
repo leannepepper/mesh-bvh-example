@@ -1,15 +1,13 @@
-import { useFrame, useThree } from "@react-three/fiber";
-import React, { useEffect, useLayoutEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import React, { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
-import { BoxGeometry } from "three";
 
 export default function MorphTargets() {
-  const ref = React.useRef(null);
-  const geometryRef = new THREE.BoxGeometry();
-  const { scene } = useThree() as any;
+  const ref = useRef(null);
+  const geometryRef = new THREE.BoxGeometry(2, 2, 2, 32, 32);
 
   const positionAttribute = geometryRef.attributes.position;
-  geometryRef.morphTargetsRelative = true;
+  //geometryRef.morphTargetsRelative = true;
 
   const spherePositions = [];
 
@@ -33,12 +31,8 @@ export default function MorphTargets() {
   );
 
   useFrame((state, delta) => {
-    // if the morphTargetInfluences is greater than 1, then set it to 0
-    if (ref.current.morphTargetInfluences[0] > 1) {
-      ref.current.morphTargetInfluences[0] = 0;
-    } else {
-      ref.current.morphTargetInfluences[0] += 0.01;
-    }
+    // oscillate the morphTargetInfluences
+    ref.current.morphTargetInfluences[0] = Math.sin(state.clock.elapsedTime);
   });
 
   useLayoutEffect(() => {
@@ -46,10 +40,8 @@ export default function MorphTargets() {
   }, []);
 
   return (
-    <>
-      <mesh ref={ref} geometry={geometryRef}>
-        <meshStandardMaterial attach="material" color="red" />
-      </mesh>
-    </>
+    <mesh ref={ref} geometry={geometryRef}>
+      <meshPhongMaterial attach="material" color="red" />
+    </mesh>
   );
 }
