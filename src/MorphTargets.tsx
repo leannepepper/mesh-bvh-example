@@ -1,10 +1,12 @@
+import { Text3D } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import React, { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 
 export default function MorphTargets() {
   const ref = useRef(null);
-  const geometryRef = new THREE.BoxGeometry(2, 2, 2, 32, 32);
+  console.log({ ref });
+  const geometryRef = ref.current?.geometry; //new THREE.BoxGeometry(2, 2, 2, 32, 32);
 
   const positionAttribute = geometryRef.attributes.position;
   //geometryRef.morphTargetsRelative = true;
@@ -32,16 +34,32 @@ export default function MorphTargets() {
 
   useFrame((state, delta) => {
     // oscillate the morphTargetInfluences
-    ref.current.morphTargetInfluences[0] = Math.sin(state.clock.elapsedTime);
+    if (ref.current) {
+      ref.current.morphTargetInfluences[0] = Math.sin(state.clock.elapsedTime);
+    }
   });
 
   useLayoutEffect(() => {
     ref.current.updateMorphTargets();
+    // Another hack that might work is from https://codepen.io/ghostcc/pen/mweMwj?css-preprocessor=less:
+    // geometry.morphTargets = [];
+    // then push as many morph targets as you have
   }, []);
 
   return (
-    <mesh ref={ref} geometry={geometryRef}>
+    <Text3D
+      ref={ref}
+      font={font}
+      scale={1}
+      letterSpacing={0.03}
+      height={0.01}
+      curveSegments={32}
+      position={[-2, 0, 0]}
+    >
+      T
       <meshPhongMaterial attach="material" color="red" />
-    </mesh>
+    </Text3D>
   );
 }
+
+const font = "./fonts/pacifico/pacifico-regular-normal-400.json";
