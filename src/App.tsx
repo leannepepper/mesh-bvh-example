@@ -19,8 +19,8 @@ export default function App() {
       {/* <CustomText /> */}
       {/* <TextWithMask /> */}
       {/* <BoxStencil /> */}
-      {/* <MorphTargets /> */}
-      <MorphTargetsBox />
+      <MorphTargets />
+      {/* <MorphTargetsBox /> */}
       <OrbitControls />
     </Canvas>
   );

@@ -67,12 +67,23 @@ export default function MorphTargets() {
         height={0.01}
         curveSegments={32}
         position={[0, 0, 0]}
+        bevelEnabled={true}
+        bevelThickness={0.1}
+        bevelSize={0.01}
         material={[
           new MeshPhongMaterial({ color: "red" }),
           new MeshPhongMaterial({ color: "green" }),
+          new MeshPhongMaterial({ color: "blue" }),
+          new MeshPhongMaterial({ color: "yellow" }),
+          new MeshPhongMaterial({ color: "orange" }),
+          new MeshPhongMaterial({ color: "purple" }),
+          new MeshPhongMaterial({ color: "pink" }),
+          new MeshPhongMaterial({ color: "brown" }),
+          new MeshPhongMaterial({ color: "black" }),
+          new MeshPhongMaterial({ color: "white" }),
         ]}
       >
-        T
+        L
       </Text3D>
     </>
   );
