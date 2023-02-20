@@ -6,6 +6,7 @@ import BoxStencil from "./BoxStencil";
 import { CustomText } from "./CustomText";
 import { TextWithMask } from "./TextWithMask";
 import MorphTargets from "./MorphTargets";
+import MorphTargetsBox from "./MorphTargetsBox";
 
 export default function App() {
   return (
@@ -18,7 +19,8 @@ export default function App() {
       {/* <CustomText /> */}
       {/* <TextWithMask /> */}
       {/* <BoxStencil /> */}
-      <MorphTargets />
+      {/* <MorphTargets /> */}
+      <MorphTargetsBox />
       <OrbitControls />
     </Canvas>
   );
