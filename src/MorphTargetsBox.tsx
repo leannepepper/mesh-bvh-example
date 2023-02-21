@@ -6,14 +6,25 @@ import { MeshPhongMaterial } from "three";
 
 export default function MorphTargetsBox() {
   const ref = useRef(null);
-  let geometryRef = new THREE.BoxGeometry(2, 2, 2, 32, 32);
+  const geometry = new THREE.BoxGeometry(2, 2, 2);
 
-  const positionAttribute = geometryRef.attributes.position;
-  //geometryRef.morphTargetsRelative = true;
+  /** Clear all the groups and make two groups for each face of the cube */
+  geometry.clearGroups();
+  geometry.addGroup(0, 3, 0);
+  geometry.addGroup(3, 3, 1);
+  geometry.addGroup(6, 3, 2);
+  geometry.addGroup(9, 3, 3);
+  geometry.addGroup(12, 3, 4);
+  geometry.addGroup(15, 3, 5);
+  geometry.addGroup(18, 3, 6);
+  geometry.addGroup(21, 3, 7);
+  geometry.addGroup(24, 3, 8);
+  geometry.addGroup(27, 3, 9);
+  geometry.addGroup(30, 3, 10);
+  geometry.addGroup(33, 3, 11);
 
-  const groups = geometryRef.groups;
-  console.log({ ref });
-
+  /** Create the MorphTarget for the sphere position */
+  const positionAttribute = geometry.attributes.position;
   const group1Positions = [];
   const group2Positions = [];
 
@@ -29,8 +40,8 @@ export default function MorphTargetsBox() {
     );
   }
 
-  geometryRef.morphAttributes.position = [];
-  geometryRef.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
+  geometry.morphAttributes.position = [];
+  geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
     group1Positions,
     3
   );
@@ -55,14 +66,20 @@ export default function MorphTargetsBox() {
     <>
       <mesh
         ref={ref}
-        geometry={geometryRef}
+        geometry={geometry}
         material={[
-          new MeshPhongMaterial({ color: "red" }),
+          new MeshPhongMaterial({ color: "red", wireframe: false }),
           new MeshPhongMaterial({ color: "green" }),
           new MeshPhongMaterial({ color: "blue" }),
           new MeshPhongMaterial({ color: "yellow" }),
           new MeshPhongMaterial({ color: "purple" }),
           new MeshPhongMaterial({ color: "orange" }),
+          new MeshPhongMaterial({ color: "white" }),
+          new MeshPhongMaterial({ color: "hotpink" }),
+          new MeshPhongMaterial({ color: "pink" }),
+          new MeshPhongMaterial({ color: "brown" }),
+          new MeshPhongMaterial({ color: "grey" }),
+          new MeshPhongMaterial({ color: "cyan" }),
         ]}
       ></mesh>
     </>
