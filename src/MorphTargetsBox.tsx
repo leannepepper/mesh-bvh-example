@@ -1,6 +1,5 @@
-import { Text3D } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 import { MeshPhongMaterial } from "three";
 
@@ -8,6 +7,7 @@ export default function MorphTargetsBox() {
   const ref = useRef(null);
   const geometry = new THREE.BoxGeometry(2, 2, 2);
 
+  //geometry.morphTargetsRelative = true;
   /** Clear all the groups and make two groups for each face of the cube */
   geometry.clearGroups();
   geometry.addGroup(0, 3, 0);
@@ -25,19 +25,39 @@ export default function MorphTargetsBox() {
 
   /** Create the MorphTarget for the sphere position */
   const positionAttribute = geometry.attributes.position;
+  const indecesAttribute = geometry.attributes;
+
   const group1Positions = [];
   const group2Positions = [];
 
-  for (let i = 0; i < positionAttribute.count; i++) {
+  for (let i = 0; i < positionAttribute.count; i = i + 3) {
     const x = positionAttribute.getX(i);
     const y = positionAttribute.getY(i);
     const z = positionAttribute.getZ(i);
 
-    group1Positions.push(
-      x * Math.sqrt(1 - (y * y) / 2 - (z * z) / 2 + (y * y * z * z) / 3),
-      y * Math.sqrt(1 - (z * z) / 2 - (x * x) / 2 + (z * z * x * x) / 3),
-      z * Math.sqrt(1 - (x * x) / 2 - (y * y) / 2 + (x * x * y * y) / 3)
-    );
+    const x2 = positionAttribute.getX(i + 1);
+    const y2 = positionAttribute.getY(i + 1);
+    const z2 = positionAttribute.getZ(i + 1);
+
+    const x3 = positionAttribute.getX(i + 2);
+    const y3 = positionAttribute.getY(i + 2);
+    const z3 = positionAttribute.getZ(i + 2);
+
+    if (i > 0) {
+      group1Positions.push(x, y, z, x2, y2, z2, x3, y3, z3);
+    } else {
+      group1Positions.push(
+        x * 0.2,
+        y * 0.2,
+        z * 0.2,
+        x2 * 0.2,
+        y2 * 0.2,
+        z2 * 0.2,
+        x3 * 0.2,
+        y3 * 0.2,
+        z3 * 0.2
+      );
+    }
   }
 
   geometry.morphAttributes.position = [];
@@ -53,7 +73,9 @@ export default function MorphTargetsBox() {
 
   useFrame((state, delta) => {
     if (ref.current) {
-      ref.current.morphTargetInfluences[0] = Math.sin(state.clock.elapsedTime);
+      ref.current.morphTargetInfluences[0] = Math.abs(
+        Math.sin(state.clock.elapsedTime)
+      );
     }
   });
 
