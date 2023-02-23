@@ -43,19 +43,19 @@ export default function MorphTargetsBox() {
     const y3 = positionAttribute.getY(i + 2);
     const z3 = positionAttribute.getZ(i + 2);
 
-    if (i > 0) {
+    if (i > 3) {
       group1Positions.push(x, y, z, x2, y2, z2, x3, y3, z3);
     } else {
       group1Positions.push(
-        x * 0.2,
-        y * 0.2,
-        z * 0.2,
-        x2 * 0.2,
-        y2 * 0.2,
-        z2 * 0.2,
-        x3 * 0.2,
-        y3 * 0.2,
-        z3 * 0.2
+        x * 0.002,
+        y * 0.002,
+        z * 0.002,
+        x2 * 0.002,
+        y2 * 0.002,
+        z2 * 0.002,
+        x3 * 0.002,
+        y3 * 0.002,
+        z3 * 0.002
       );
     }
   }
