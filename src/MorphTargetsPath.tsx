@@ -5,12 +5,13 @@ import { MeshPhongMaterial } from "three";
 
 export default function MorphTargetsPath() {
   const ref = useRef(null);
-  const geometry = new THREE.TorusKnotGeometry(2, 0.2, 100, 8, 1, 5);
+  const segments = 100;
+  const geometry = new THREE.TorusKnotGeometry(2, 0.2, segments, 8, 1, 5);
 
   //geometry.morphTargetsRelative = true;
   /** Clear all the groups and make two groups for each face of the cube */
-  //   geometry.clearGroups();
-  //   geometry.addGroup(0, 3, 0);
+  geometry.clearGroups();
+
   //   geometry.addGroup(3, 3, 1);
   //   geometry.addGroup(6, 3, 2);
   //   geometry.addGroup(9, 3, 3);
@@ -22,6 +23,17 @@ export default function MorphTargetsPath() {
   //   geometry.addGroup(27, 3, 9);
   //   geometry.addGroup(30, 3, 10);
   //   geometry.addGroup(33, 3, 11);
+
+  let materialIndex = 0;
+  for (
+    let i = 0;
+    i < geometry.attributes.position.array.length * 2;
+    i = i + 48
+  ) {
+    geometry.addGroup(i, 48, materialIndex);
+    materialIndex++;
+  }
+  console.log({ geometry });
 
   /** Create the MorphTarget for the sphere position */
   //   const positionAttribute = geometry.attributes.position;
@@ -84,13 +96,20 @@ export default function MorphTargetsPath() {
   //     ref.current.morphTargetInfluences = [];
   //   }, []);
 
+  // make an array of 50 meshPhong materials of different colors
+  const colors = [];
+  for (let i = 0; i < segments; i++) {
+    colors.push(
+      new MeshPhongMaterial({
+        color: Math.random() * 0xffffff,
+        wireframe: false,
+      })
+    );
+  }
+
   return (
     <>
-      <mesh
-        ref={ref}
-        geometry={geometry}
-        material={new MeshPhongMaterial({ color: "red", wireframe: false })}
-      ></mesh>
+      <mesh ref={ref} geometry={geometry} material={colors}></mesh>
     </>
   );
 }
