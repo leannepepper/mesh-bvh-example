@@ -6,13 +6,13 @@ import { MeshPhongMaterial } from "three";
 export default function MorphTargetsPath() {
   const ref = useRef(null);
   const segments = 10;
-  const geometry = new THREE.TorusKnotGeometry(2, 0.2, segments, 8, 1, 5);
+  const geometry = new THREE.TorusKnotGeometry(2, 0.2, segments, 8, 1, 1);
 
-  //   geometry.morphTargetsRelative = true;
+  geometry.morphTargetsRelative = true;
   geometry.clearGroups();
 
   let materialIndex = 0;
-  for (let i = 0; i < geometry.attributes.position.array.length; i += 48) {
+  for (let i = 0; i < geometry.index.count; i += 48) {
     geometry.addGroup(i, 48, materialIndex);
     materialIndex++;
   }
@@ -22,37 +22,26 @@ export default function MorphTargetsPath() {
   const positionAttribute = geometry.attributes.position;
   const group1Positions = [];
 
-  // for the first group in the geometry, create a morph target that goes to the last set of vertices in the group
-  const group1 = geometry.groups[0];
-
-  // loop through all the groups
-  for (let i = 0; i < geometry.groups.length; i++) {
-    const group = geometry.groups[i];
-    // loop through all the vertices in the group
-    for (let j = group.start; j < group.start + group.count; j++) {
-      // get the x, y, and z values for the vertex
-      const x = positionAttribute.getX(j);
-      const y = positionAttribute.getY(j);
-      const z = positionAttribute.getZ(j);
-      // add the x, y, and z values to the morph target array
-      group1Positions.push(x, y, z);
-    }
+  for (let i = 0; i < geometry.groups[0].count; i = i + 3) {
+    let x = positionAttribute.array[i] * 0.1;
+    let y = positionAttribute.array[i + 1] * 0.1;
+    let z = positionAttribute.array[i + 2] * 0.1;
 
     // if this is the first group, add the morph target to the geometry
-    if (i === 0) {
-      geometry.morphAttributes.position = [];
-      geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
-        group1Positions,
-        3
-      );
-    }
+
+    group1Positions.push(x, y, z);
   }
+
+  geometry.morphAttributes.position = [];
+  geometry.morphAttributes.position[0] = new THREE.Float32BufferAttribute(
+    group1Positions,
+    3
+  );
 
   useFrame((state, delta) => {
     if (ref.current) {
-      ref.current.morphTargetInfluences[0] = Math.abs(
-        Math.sin(state.clock.elapsedTime)
-      );
+      // increace the morphTargetInfluence to 1, then back to 0
+      ref.current.morphTargetInfluences[0] = Math.sin(state.clock.elapsedTime);
     }
   });
 
@@ -67,15 +56,11 @@ export default function MorphTargetsPath() {
     colors.push(
       new MeshPhongMaterial({
         color: Math.random() * 0xffffff,
-        wireframe: true,
+        wireframe: false,
         visible: true,
       })
     );
   }
 
-  return (
-    <>
-      <mesh ref={ref} geometry={geometry} material={colors}></mesh>
-    </>
-  );
+  return <mesh ref={ref} geometry={geometry} material={colors}></mesh>;
 }
