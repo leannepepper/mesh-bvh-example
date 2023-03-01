@@ -8,6 +8,7 @@ import { TextWithMask } from "./TextWithMask";
 import MorphTargets from "./MorphTargets";
 import MorphTargetsBox from "./MorphTargetsBox";
 import MorphTargetsPath from "./MorphTargetsPath";
+import FollowCurve from "./FollowCurve";
 
 export default function App() {
   return (
@@ -22,7 +23,8 @@ export default function App() {
       {/* <BoxStencil /> */}
       {/* <MorphTargets /> */}
       {/* <MorphTargetsBox /> */}
-      <MorphTargetsPath />
+      {/* <MorphTargetsPath /> */}
+      <FollowCurve />
       <OrbitControls />
     </Canvas>
   );

@@ -81,8 +81,12 @@ export default function BoxStencil() {
 
   return (
     <>
-      <mesh ref={cubeFace} geometry={shape}>
-        <meshBasicMaterial attach="material" color="white" />
+      <mesh ref={cubeFace} geometry={shape} rotation={[0, 0, 180]}>
+        <meshBasicMaterial
+          attach="material"
+          color="white"
+          side={THREE.DoubleSide}
+        />
       </mesh>
 
       <mesh ref={objectRef} position={[0, 0, 0]}>

@@ -16,7 +16,7 @@ export default function MorphTargetsPath() {
     geometry.addGroup(i, 48, materialIndex);
     materialIndex++;
   }
-  console.log({ geometry });
+  console.log({ geometry, ref });
 
   /** Create the MorphTarget for start positions */
   const positionAttribute = geometry.attributes.position;
