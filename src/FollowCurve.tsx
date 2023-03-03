@@ -5,27 +5,21 @@ import * as THREE from "three";
 
 export default function FollowCurve() {
   const cube = React.useRef(null);
-  const line = React.useRef(null);
   const textRef = React.useRef(null);
-  console.log({ textRef });
+
   let pathGeometry;
   let curves;
 
   useEffect(() => {
     if (!textRef.current) return;
-    // join all the curves in the first shape
 
     curves = new THREE.CurvePath();
-    textRef.current.geometry.parameters.shapes[0].curves.forEach((curve) => {
-      curves.add(curve);
-    });
 
-    //   new THREE.CubicBezierCurve(
-    //     new THREE.Vector2(-5, 0),
-    //     new THREE.Vector2(-2, 5),
-    //     new THREE.Vector2(10, 5),
-    //     new THREE.Vector2(5, 0)
-    //   );
+    textRef.current.geometry.parameters.shapes.forEach((letter) => {
+      letter.curves.forEach((curve) => {
+        curves.add(curve);
+      });
+    });
 
     const points = curves.getPoints(10);
     pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -34,7 +28,7 @@ export default function FollowCurve() {
   // move the cube along the path every frame
   useFrame(() => {
     if (cube.current) {
-      const t = (performance.now() / 10000) % 1;
+      const t = (performance.now() / 50000) % 1;
       const pos = curves.getPointAt(t);
 
       cube.current.position.set(pos.x, pos.y, 0);
@@ -48,10 +42,7 @@ export default function FollowCurve() {
         <boxGeometry attach="geometry" args={[0.1, 0.1, 0.1]} />
         <meshBasicMaterial attach="material" color="hotpink" />
       </mesh>
-      <line ref={line}>
-        <bufferGeometry attach="geometry" {...pathGeometry} />
-        <lineBasicMaterial attach="material" color="yellow" />
-      </line>
+
       <Text3D
         ref={textRef}
         font={font}
@@ -66,7 +57,7 @@ export default function FollowCurve() {
           color={0x80ee10}
           shininess={100}
           side={THREE.DoubleSide}
-          wireframe={true}
+          wireframe={false}
         ></meshPhongMaterial>
       </Text3D>
     </>
