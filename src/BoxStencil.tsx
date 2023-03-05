@@ -3,35 +3,35 @@ import React from "react";
 import * as THREE from "three";
 import { ConeGeometry, ShapePath } from "three";
 
-const vertexShader = `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
+// const vertexShader = `
+//   varying vec2 vUv;
+//   void main() {
+//     vUv = uv;
+//     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+//   }
+// `;
 
-const fragmentShader = `
-varying vec2 vUv;
-uniform sampler2D map;
-void main() {
-   vec3 col = vec3(0.2, 0.2, 0.2);
-    gl_FragColor = vec4(pow(col, vec3(1.75)) * 2.5, 1.0);
-}
-`;
+// const fragmentShader = `
+// varying vec2 vUv;
+// uniform sampler2D map;
+// void main() {
+//    vec3 col = vec3(0.2, 0.2, 0.2);
+//     gl_FragColor = vec4(pow(col, vec3(1.75)) * 2.5, 1.0);
+// }
+// `;
 
-const uniforms = {
-  map: { type: "t", value: null },
-};
+// const uniforms = {
+//   map: { type: "t", value: null },
+// };
 
-const materialProperties = {
-  uniforms,
-  vertexShader,
-  fragmentShader,
-  depthWrite: false,
-  stencilWrite: true,
-  stencilFunc: THREE.EqualStencilFunc,
-};
+// const materialProperties = {
+//   uniforms,
+//   vertexShader,
+//   fragmentShader,
+//   depthWrite: false,
+//   stencilWrite: true,
+//   stencilFunc: THREE.EqualStencilFunc,
+// };
 
 export default function BoxStencil() {
   const cubeFace = React.useRef(null);

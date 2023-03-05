@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import * as THREE from "three";
 
 export default function FollowCurve() {
-  const cube = React.useRef(null);
+  const cubeRef = React.useRef(null);
   const textRef = React.useRef(null);
 
   let pathGeometry;
@@ -13,33 +13,43 @@ export default function FollowCurve() {
   useEffect(() => {
     if (!textRef.current) return;
 
+    // get the path from the text curves
     curves = new THREE.CurvePath();
-
     textRef.current.geometry.parameters.shapes.forEach((letter) => {
       letter.curves.forEach((curve) => {
         curves.add(curve);
       });
     });
 
-    const points = curves.getPoints(10);
-    pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    // const points = curves.getPoints(10);
+    // pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
   }, [textRef]);
 
-  // move the cube along the path every frame
+  useEffect(() => {
+    cubeRef.current.material.stencilWrite = true;
+    cubeRef.current.material.depthWrite = false;
+    cubeRef.current.material.stencilFunc = THREE.AlwaysStencilFunc;
+    cubeRef.current.material.stencilRef = 1;
+    cubeRef.current.material.stencilZPass = THREE.ReplaceStencilOp;
+
+    textRef.current.material.stencilWrite = true;
+    textRef.current.material.stencilFunc = THREE.EqualStencilFunc;
+    textRef.current.material.stencilRef = 1;
+  }, []);
+
   useFrame(() => {
-    if (cube.current) {
+    // move the cube along the path every frame
+    if (cubeRef.current) {
       const t = (performance.now() / 50000) % 1;
       const pos = curves.getPointAt(t);
-
-      cube.current.position.set(pos.x, pos.y, 0);
-      //cube.current.lookAt(curve.getPointAt(t + 0.01));
+      cubeRef.current.position.set(pos.x, pos.y, 0);
     }
   });
 
   return (
     <>
-      <mesh ref={cube} rotation={[0, 0, 0]}>
-        <boxGeometry attach="geometry" args={[0.1, 0.1, 0.1]} />
+      <mesh ref={cubeRef} rotation={[0, 0, 0]}>
+        <boxGeometry attach="geometry" args={[1.0, 1.0, 1.0]} />
         <meshBasicMaterial attach="material" color="hotpink" />
       </mesh>
 
