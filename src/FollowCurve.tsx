@@ -7,7 +7,7 @@ export default function FollowCurve() {
   const cubeRef = React.useRef(null);
   const textRef = React.useRef(null);
 
-  let pathGeometry;
+  let pathGeometry = new THREE.BufferGeometry();
   let curves;
 
   useEffect(() => {
@@ -15,15 +15,16 @@ export default function FollowCurve() {
 
     // get the path from the text curves
     curves = new THREE.CurvePath();
+    let i = 0;
     textRef.current.geometry.parameters.shapes.forEach((letter) => {
       letter.curves.forEach((curve) => {
         curves.add(curve);
       });
     });
 
-    // const points = curves.getPoints(10);
-    // pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  }, [textRef]);
+    const points = curves.getPoints(10);
+    pathGeometry.setFromPoints(points);
+  }, []);
 
   useEffect(() => {
     cubeRef.current.material.stencilWrite = true;
@@ -31,7 +32,6 @@ export default function FollowCurve() {
     cubeRef.current.material.stencilFunc = THREE.AlwaysStencilFunc;
     cubeRef.current.material.stencilRef = 1;
     cubeRef.current.material.stencilZPass = THREE.ReplaceStencilOp;
-
     textRef.current.material.stencilWrite = true;
     textRef.current.material.stencilFunc = THREE.EqualStencilFunc;
     textRef.current.material.stencilRef = 1;
@@ -48,10 +48,14 @@ export default function FollowCurve() {
 
   return (
     <>
-      <mesh ref={cubeRef} rotation={[0, 0, 0]}>
+      {/* <mesh ref={cubeRef} rotation={[0, 0, 0]}>
         <boxGeometry attach="geometry" args={[1.0, 1.0, 1.0]} />
-        <meshBasicMaterial attach="material" color="hotpink" />
-      </mesh>
+        <meshStandardMaterial attach="material" color="hotpink" />
+      </mesh> */}
+      <line ref={cubeRef}>
+        <bufferGeometry attach="geometry" {...pathGeometry} />
+        <lineBasicMaterial attach="material" color="hotpink" />
+      </line>
 
       <Text3D
         ref={textRef}
