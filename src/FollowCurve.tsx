@@ -1,29 +1,37 @@
 import { Text3D } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import * as THREE from "three";
 
 export default function FollowCurve() {
   const cubeRef = React.useRef(null);
   const textRef = React.useRef(null);
 
-  let pathGeometry = new THREE.BufferGeometry();
+  let shape;
+
+  let geometry = React.useRef<THREE.ShapeGeometry>();
   let curves;
 
   useEffect(() => {
-    if (!textRef.current) return;
+    if (!textRef.current || !geometry.current) return;
 
     // get the path from the text curves
     curves = new THREE.CurvePath();
-    let i = 0;
+
     textRef.current.geometry.parameters.shapes.forEach((letter) => {
       letter.curves.forEach((curve) => {
         curves.add(curve);
       });
     });
 
-    const points = curves.getPoints(10);
-    pathGeometry.setFromPoints(points);
+    const points = curves.getPoints(1000);
+
+    shape = new THREE.Shape(points);
+
+    // TODO: this is not working, why is this just a triangle?
+    geometry.current = new THREE.ShapeGeometry(shape);
+    geometry.current.setFromPoints(points);
+    console.log({ geometry });
   }, []);
 
   useEffect(() => {
@@ -32,6 +40,7 @@ export default function FollowCurve() {
     cubeRef.current.material.stencilFunc = THREE.AlwaysStencilFunc;
     cubeRef.current.material.stencilRef = 1;
     cubeRef.current.material.stencilZPass = THREE.ReplaceStencilOp;
+
     textRef.current.material.stencilWrite = true;
     textRef.current.material.stencilFunc = THREE.EqualStencilFunc;
     textRef.current.material.stencilRef = 1;
@@ -52,10 +61,6 @@ export default function FollowCurve() {
         <boxGeometry attach="geometry" args={[1.0, 1.0, 1.0]} />
         <meshStandardMaterial attach="material" color="hotpink" />
       </mesh> */}
-      <line ref={cubeRef}>
-        <bufferGeometry attach="geometry" {...pathGeometry} />
-        <lineBasicMaterial attach="material" color="hotpink" />
-      </line>
 
       <Text3D
         ref={textRef}
@@ -72,8 +77,18 @@ export default function FollowCurve() {
           shininess={100}
           side={THREE.DoubleSide}
           wireframe={false}
+          transparent={true}
+          opacity={1}
         ></meshPhongMaterial>
       </Text3D>
+      <mesh ref={cubeRef}>
+        <shapeGeometry ref={geometry} attach="geometry" />
+        <meshBasicMaterial
+          attach="material"
+          color="hotpink"
+          side={THREE.DoubleSide}
+        />
+      </mesh>
     </>
   );
 }
