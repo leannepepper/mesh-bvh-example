@@ -9,6 +9,7 @@ import MorphTargets from "./MorphTargets";
 import MorphTargetsBox from "./MorphTargetsBox";
 import MorphTargetsPath from "./MorphTargetsPath";
 import FollowCurve from "./FollowCurve";
+import FluorescentMaterial from "./fluorescent/FluorescentMaterial";
 
 export default function App() {
   return (
@@ -24,7 +25,8 @@ export default function App() {
       {/* <MorphTargets /> */}
       {/* <MorphTargetsBox /> */}
       {/* <MorphTargetsPath /> */}
-      <FollowCurve />
+      {/* <FollowCurve /> */}
+      <FluorescentMaterial />
       <OrbitControls />
     </Canvas>
   );
