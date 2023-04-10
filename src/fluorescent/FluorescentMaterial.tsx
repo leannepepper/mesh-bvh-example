@@ -1,5 +1,6 @@
 import React from "react";
 import * as THREE from "three";
+import { DoubleSide } from "three";
 
 const vertexShader = `
   varying vec2 vUv;
@@ -13,7 +14,7 @@ const fragmentShader = `
 varying vec2 vUv;
 uniform sampler2D map;
 void main() {
-   vec3 col = vec3(0.5, 0.2, 0.5);
+   vec3 col = vec3(1.0, 1.0, 1.0);
     gl_FragColor = vec4(pow(col, vec3(1.75)) * 2.5, 1.0);
 }
 `;
@@ -26,9 +27,6 @@ const materialProperties = {
   uniforms,
   vertexShader,
   fragmentShader,
-  depthWrite: false,
-  stencilWrite: true,
-  stencilFunc: THREE.EqualStencilFunc,
 };
 
 export default function FluorescentMaterial() {
@@ -36,9 +34,21 @@ export default function FluorescentMaterial() {
 
   return (
     <>
-      <mesh ref={boxRef2}>
-        <boxGeometry attach="geometry" args={[1, 1, 1]} />
-        <shaderMaterial attach="material" {...materialProperties} />
+      <mesh ref={boxRef2} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[5, 5]} />
+        <shaderMaterial
+          side={DoubleSide}
+          attach="material"
+          {...materialProperties}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.01, -1]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial side={DoubleSide} color={"orange"} />
+      </mesh>
+      <mesh position={[0, 0, -2]}>
+        <planeGeometry args={[5, 5]} />
+        <meshStandardMaterial side={DoubleSide} color={"#ffffff"} />
       </mesh>
     </>
   );

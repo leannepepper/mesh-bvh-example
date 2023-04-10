@@ -13,12 +13,15 @@ import FluorescentMaterial from "./fluorescent/FluorescentMaterial";
 
 export default function App() {
   return (
-    <Canvas>
+    <Canvas
+      camera={{
+        position: [0, 0.4, 1.2],
+      }}
+    >
       <color attach="background" args={["#171d6c"]} />
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-      <pointLight position={[-10, -10, -10]} />
+      <pointLight position={[0, 10, -1]} color="green" />
       {/* <CustomText /> */}
       {/* <TextWithMask /> */}
       {/* <BoxStencil /> */}
