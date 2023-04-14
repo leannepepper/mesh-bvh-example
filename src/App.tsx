@@ -21,7 +21,6 @@ export default function App() {
       <color attach="background" args={["#171d6c"]} />
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
-      <pointLight position={[0, 10, -1]} color="green" />
       {/* <CustomText /> */}
       {/* <TextWithMask /> */}
       {/* <BoxStencil /> */}

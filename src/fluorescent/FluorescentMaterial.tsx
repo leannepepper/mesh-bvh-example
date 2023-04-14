@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import * as THREE from "three";
 import { DoubleSide } from "three";
+import { useHelper } from "@react-three/drei";
 
 const vertexShader = `
   varying vec2 vUv;
@@ -14,8 +15,8 @@ const fragmentShader = `
 varying vec2 vUv;
 uniform sampler2D map;
 void main() {
-   vec3 col = vec3(1.0, 1.0, 1.0);
-    gl_FragColor = vec4(pow(col, vec3(1.75)) * 2.5, 1.0);
+   vec3 col = vec3(1.0, 0.65, 0.0);
+    gl_FragColor = vec4(col, 1.0);
 }
 `;
 
@@ -34,22 +35,45 @@ export default function FluorescentMaterial() {
 
   return (
     <>
-      <mesh ref={boxRef2} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <shaderMaterial
+      <Lights />
+      <group position={[0, 0, 2]}>
+        <mesh ref={boxRef2} rotation={[Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[5, 5]} />
+          <meshStandardMaterial side={DoubleSide} color={"#ffffff"} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.01, -1]}>
+          <planeGeometry args={[2, 2]} />
+          {/* <shaderMaterial
           side={DoubleSide}
           attach="material"
           {...materialProperties}
-        />
-      </mesh>
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.01, -1]}>
-        <planeGeometry args={[2, 2]} />
-        <meshStandardMaterial side={DoubleSide} color={"orange"} />
-      </mesh>
-      <mesh position={[0, 0, -2]}>
-        <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial side={DoubleSide} color={"#ffffff"} />
-      </mesh>
+        /> */}
+          <meshStandardMaterial side={DoubleSide} color={"orange"} />
+        </mesh>
+        <mesh position={[0, 0, -2]}>
+          <planeGeometry args={[5, 5]} />
+          <meshStandardMaterial side={DoubleSide} color={"#ffffff"} />
+        </mesh>
+      </group>
     </>
+  );
+}
+
+function Lights() {
+  const light = useRef();
+  useHelper(light, THREE.SpotLightHelper, "green");
+  return (
+    <spotLight
+      ref={light}
+      intensity={5.0}
+      position={[0, 0.5, 1.0]}
+      //   shadow-mapSize-width={120}
+      //   shadow-mapSize-height={32}
+      //   castShadow
+      shadow-bias={-0.001}
+      penumbra={0.5}
+      angle={-Math.PI / 6}
+      color="green"
+    />
   );
 }
