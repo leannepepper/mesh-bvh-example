@@ -49,6 +49,11 @@ function Lights() {
 
 const vertexShader = `
   varying vec2 vUv;
+  varying vec3 v_incident_dir;
+  varying vec3 v_outgoing_dir;
+  varying float v_incident_wavelength;
+  varying float v_outgoing_wavelength;
+  
   void main() {
     vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -57,12 +62,18 @@ const vertexShader = `
 
 const fragmentShader = `
 varying vec2 vUv;
+varying vec3 v_incident_dir;
+varying vec3 v_outgoing_dir;
+varying float v_incident_wavelength;
+varying float v_outgoing_wavelength;
   
 uniform float u_concentration;
 uniform sampler2D u_emission_spectrum;
 uniform sampler2D u_absorption_spectrum;
 uniform sampler2D u_reflectance_spectrum;
 uniform float u_quantum_yield;
+
+#define PI 3.14159265359
 
 void main() {
     vec3 radiance = vec3(0.0);
@@ -79,8 +90,8 @@ void main() {
     float reflectance = texture(u_reflectance_spectrum, vec2(lambda_i, 0.0)).r;
     float c = u_concentration;
     float Q = u_quantum_yield;
-    vec3 fluorescent_contribution = c * absorption * Q * emission / PI;
-    vec3 nonfluorescent_contribution = (1.0 - c * absorption) * reflectance / PI;
+    float fluorescent_contribution = c * absorption * Q * emission / PI;
+    float nonfluorescent_contribution = (1.0 - c * absorption) * reflectance / PI;
     radiance += fluorescent_contribution + nonfluorescent_contribution;
 
     // Output final radiance
@@ -96,8 +107,16 @@ const uniforms = {
   u_quantum_yield: { value: 0.5 },
 };
 
+const varyings = {
+  v_incident_dir: { value: new THREE.Vector3(0, 0, 1) },
+  v_outgoing_dir: { value: new THREE.Vector3(0, 0, 1) },
+  v_incident_wavelength: { value: 400 },
+  v_outgoing_wavelength: { value: 500 },
+};
+
 const materialProperties = {
   uniforms,
+  varyings,
   vertexShader,
   fragmentShader,
   side: THREE.DoubleSide,
