@@ -1,22 +1,43 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { DoubleSide } from "three";
 import { useHelper } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 
 export default function FluorescentMaterial() {
-  const boxRef2 = React.useRef(null);
+  const geomRef = new THREE.PlaneGeometry(2, 2, 32, 32);
+
+  const incidentDirs = [];
+
+  useEffect(() => {
+    for (let i = 0; i < geomRef.attributes.position.count; i++) {
+      incidentDirs.push(new THREE.Vector3(1, 1, 1));
+    }
+
+    const incidentDirsAttribute = new THREE.BufferAttribute(
+      new Float32Array(incidentDirs.length * 3),
+      3
+    );
+    incidentDirsAttribute.copyArray(incidentDirs);
+
+    geomRef.setAttribute("a_incident_dir", incidentDirsAttribute);
+    console.log({ geomRef });
+  }, []);
 
   return (
     <>
       <Lights />
       <group position={[0, 0, 2]}>
-        <mesh ref={boxRef2} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
           <planeGeometry args={[5, 5]} />
           <meshStandardMaterial side={DoubleSide} color={"#ffffff"} />
         </mesh>
-        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.01, -1]}>
-          <planeGeometry args={[2, 2]} />
+        <mesh
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[0, 0.01, -1]}
+          geometry={geomRef}
+        >
+          {/* <planeGeometry args={[2, 2, 32, 32]} /> */}
           <shaderMaterial attach="material" {...materialProperties} />
         </mesh>
         <mesh position={[0, 0, -2]}>
@@ -36,9 +57,6 @@ function Lights() {
       ref={light}
       intensity={5.0}
       position={[0, 0.5, 1.0]}
-      //   shadow-mapSize-width={120}
-      //   shadow-mapSize-height={32}
-      //   castShadow
       shadow-bias={-0.001}
       penumbra={0.5}
       angle={-Math.PI / 6}
@@ -53,9 +71,19 @@ const vertexShader = `
   varying vec3 v_outgoing_dir;
   varying float v_incident_wavelength;
   varying float v_outgoing_wavelength;
+
+  attribute vec3 a_incident_dir;
+  attribute vec3 a_outgoing_dir;
+  attribute float a_incident_wavelength;
+  attribute float a_outgoing_wavelength;
   
   void main() {
     vUv = uv;
+    v_incident_dir = a_incident_dir;
+    v_outgoing_dir = a_outgoing_dir;
+    v_incident_wavelength = a_incident_wavelength;
+    v_outgoing_wavelength = a_outgoing_wavelength;
+
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -95,8 +123,9 @@ void main() {
     radiance += fluorescent_contribution + nonfluorescent_contribution;
 
     // Output final radiance
-    gl_FragColor = vec4(radiance, 1.0);
-    }
+    gl_FragColor = vec4(vec3(radiance), 1.0);
+    //gl_FragColor = vec4(vec3(c, 1.0, 1.0), 1.0);
+}
 `;
 
 const uniforms = {
@@ -107,18 +136,18 @@ const uniforms = {
   u_quantum_yield: { value: 0.5 },
 };
 
-const varyings = {
-  v_incident_dir: { value: new THREE.Vector3(0, 0, 1) },
-  v_outgoing_dir: { value: new THREE.Vector3(0, 0, 1) },
-  v_incident_wavelength: { value: 400 },
-  v_outgoing_wavelength: { value: 500 },
+const attributes = {
+  a_incident_dir: { value: new THREE.Vector3(1, 1, 1) },
+  a_outgoing_dir: { value: new THREE.Vector3(0, 0, 1) },
+  a_incident_wavelength: { value: 400 },
+  a_outgoing_wavelength: { value: 500 },
 };
 
 const materialProperties = {
   uniforms,
-  varyings,
+  attributes,
   vertexShader,
   fragmentShader,
   side: THREE.DoubleSide,
-  transparent: true,
+  //transparent: true,
 };
