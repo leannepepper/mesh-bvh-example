@@ -1,13 +1,30 @@
 import { useFrame } from "@react-three/fiber";
 import React, { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
-import { EffectComposer, Bloom } from "react-postprocessing";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+
+interface BloomProps {
+  blendFunction: number;
+  luminanceThreshold?: number;
+  luminanceSmoothing?: number;
+  height?: number;
+  intensity?: number;
+}
 
 export default function CircleArt() {
   const ref = useRef(null);
   const count = 6;
   const angle = (Math.PI * 2) / count;
   const radius = 0.05;
+
+  const bloomProps: BloomProps = {
+    blendFunction: 0,
+    luminanceSmoothing: 0.025,
+    luminanceThreshold: 0.1,
+    height: 100,
+    intensity: 0.7,
+  };
+
   useLayoutEffect(() => {
     for (let i = 0; i < count; i++) {
       ref.current.setMatrixAt(
@@ -22,7 +39,7 @@ export default function CircleArt() {
     }
   }, []);
   useFrame(() => {
-    ref.current.rotation.y += 0.03;
+    //ref.current.rotation.y += 0.03;
   });
   return (
     <>
@@ -34,9 +51,9 @@ export default function CircleArt() {
           side={THREE.DoubleSide}
         />
       </instancedMesh>
-      {/* <EffectComposer>
-        <Bloom luminanceThreshold={0} luminanceSmoothing={0.9} height={300} />
-      </EffectComposer> */}
+      <EffectComposer>
+        <Bloom {...bloomProps} />
+      </EffectComposer>
     </>
   );
 }
