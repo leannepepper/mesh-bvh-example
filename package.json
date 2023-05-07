@@ -20,6 +20,7 @@
     "r3f-perf": "^6.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-postprocessing": "^1.4.0",
     "react-scripts": "^5.0.1",
     "three": "^0.145.0",
     "three-mesh-bvh": "^0.5.22",
