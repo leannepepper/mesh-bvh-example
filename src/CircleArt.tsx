@@ -68,30 +68,41 @@ function PinkCircles() {
 function BlueCircles() {
   const ref = useRef(null);
   const count = 6;
-  const radius = 0.05;
-  const offset = 0.1;
-  const angle = (Math.PI * 2) / count + offset;
+  const radius = 0.025;
+  const angle = (Math.PI * 2) / count;
 
   useLayoutEffect(() => {
     for (let i = 0; i < count; i++) {
       ref.current.setMatrixAt(
         i,
         new THREE.Matrix4().makeTranslation(
-          Math.cos(angle * i) * 0.3,
+          Math.cos(angle * i) * 0.2,
           0,
-          Math.sin(angle * i) * 0.3
+          Math.sin(angle * i) * 0.2
         )
       );
     }
   }, []);
 
-  useFrame(() => {
+  useFrame(({ clock: { elapsedTime } }) => {
     ref.current.rotation.y -= 0.01;
+
+    for (let i = 0; i < count; i++) {
+      ref.current.setMatrixAt(
+        i,
+        new THREE.Matrix4().makeTranslation(
+          Math.cos(angle * i) * (Math.sin(elapsedTime) * 0.3),
+          0,
+          Math.sin(angle * i) * (Math.sin(elapsedTime) * 0.3)
+        )
+      );
+    }
+    ref.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
     <instancedMesh ref={ref} args={[null, null, count]}>
-      <sphereGeometry args={[radius]} />
+      <sphereGeometry args={[0.05]} />
       <meshStandardMaterial
         attach="material"
         color="lightblue"
