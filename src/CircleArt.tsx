@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import React, { useLayoutEffect, useRef } from "react";
+import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
@@ -11,18 +11,26 @@ interface BloomProps {
   intensity?: number;
 }
 
+const bloomProps: BloomProps = {
+  blendFunction: 0,
+  luminanceThreshold: 0.1,
+  height: 200,
+  intensity: 1.0,
+};
+
 export default function CircleArt() {
-  const bloomProps: BloomProps = {
-    blendFunction: 0,
-    luminanceThreshold: 0.1,
-    height: 200,
-    intensity: 1.0,
-  };
+  const pinkRef = useRef(null);
+  const blueRef = useRef(null);
+
+  useFrame(() => {
+    const pinkMesh = pinkRef.current;
+    const blueMesh = blueRef.current;
+  });
 
   return (
     <>
-      <PinkCircles />
-      <BlueCircles />
+      <PinkCircles ref={pinkRef} />
+      <BlueCircles ref={blueRef} />
       <EffectComposer>
         <Bloom {...bloomProps} />
       </EffectComposer>
@@ -30,8 +38,10 @@ export default function CircleArt() {
   );
 }
 
-function PinkCircles() {
-  const ref = useRef(null);
+const PinkCircles = forwardRef(function PinkCircles(
+  props,
+  ref: React.RefObject<THREE.InstancedMesh>
+) {
   const count = 6;
   const angle = (Math.PI * 2) / count;
   const radius = 0.05;
@@ -63,10 +73,12 @@ function PinkCircles() {
       />
     </instancedMesh>
   );
-}
+});
 
-function BlueCircles() {
-  const ref = useRef(null);
+const BlueCircles = forwardRef(function BlueCircles(
+  props,
+  ref: React.RefObject<THREE.InstancedMesh>
+) {
   const count = 6;
   const radius = 0.025;
   const angle = (Math.PI * 2) / count;
@@ -110,4 +122,4 @@ function BlueCircles() {
       />
     </instancedMesh>
   );
-}
+});
