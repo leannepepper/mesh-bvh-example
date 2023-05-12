@@ -22,9 +22,24 @@ export default function CircleArt() {
   const pinkRef = useRef(null);
   const blueRef = useRef(null);
 
+  let prevPos = null;
   useFrame(() => {
     const pinkMesh = pinkRef.current;
     const blueMesh = blueRef.current;
+
+    // if the blueMesh prevPos is different then the current one log something out
+
+    for (let i = 0; i < blueMesh.count; i++) {
+      const matrix = new THREE.Matrix4();
+
+      // Get the updated matrix for the current instance
+      blueMesh.getMatrixAt(i, matrix);
+
+      if (i == 0 && matrix !== prevPos) {
+        prevPos = matrix;
+        console.log("is different");
+      }
+    }
   });
 
   return (
