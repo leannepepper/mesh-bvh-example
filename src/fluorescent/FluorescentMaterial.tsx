@@ -107,7 +107,7 @@ void main() {
     vec3 radiance = vec3(0.0);
 
     // Get incident and outgoing directions and wavelengths
-    vec3 i = normalize(v_incident_dir);
+    //vec3 i = normalize(v_incident_dir);
     vec3 o = normalize(v_outgoing_dir);
     float lambda_i = v_incident_wavelength;
     float lambda_o = v_outgoing_wavelength;
@@ -124,12 +124,12 @@ void main() {
 
     // Output final radiance
     gl_FragColor = vec4(vec3(radiance), 1.0);
-    //gl_FragColor = vec4(vec3(c, 1.0, 1.0), 1.0);
+    //gl_FragColor = vec4(v_incident_dir.x, v_incident_dir.y, v_incident_dir.z, 1.0);
 }
 `;
 
 const uniforms = {
-  u_concentration: { value: 1.0 },
+  u_concentration: { value: 0.5 },
   u_emission_spectrum: { value: new THREE.Texture() },
   u_absorption_spectrum: { value: new THREE.Texture() },
   u_reflectance_spectrum: { value: new THREE.Texture() },
@@ -137,7 +137,7 @@ const uniforms = {
 };
 
 const attributes = {
-  a_incident_dir: { value: new THREE.Vector3(1, 1, 1) },
+  a_incident_dir: { value: new THREE.Vector3(0.5, 1, 1) },
   a_outgoing_dir: { value: new THREE.Vector3(0, 0, 1) },
   a_incident_wavelength: { value: 400 },
   a_outgoing_wavelength: { value: 500 },

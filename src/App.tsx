@@ -11,15 +11,18 @@ import MorphTargetsPath from "./MorphTargetsPath";
 import FollowCurve from "./FollowCurve";
 import FluorescentMaterial from "./fluorescent/FluorescentMaterial";
 import CircleArt from "./CircleArt";
+import JSXUI from "./JSXUI";
 
 export default function App() {
   return (
     <Canvas
-      camera={{
-        position: [0, 0.4, 1.2],
-      }}
+      camera={
+        {
+          //position: [0, 0.4, 1.2],
+        }
+      }
     >
-      <color attach="background" args={["#171d6c"]} />
+      {/* <color attach="background" args={["#171d6c"]} /> */}
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
       {/* <CustomText /> */}
@@ -29,8 +32,9 @@ export default function App() {
       {/* <MorphTargetsBox /> */}
       {/* <MorphTargetsPath /> */}
       {/* <FollowCurve /> */}
+      {/* <CircleArt /> */}
       {/* <FluorescentMaterial /> */}
-      <CircleArt />
+      <JSXUI />
       <OrbitControls />
     </Canvas>
   );
