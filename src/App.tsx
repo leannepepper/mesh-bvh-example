@@ -35,7 +35,7 @@ export default function App() {
       {/* <CircleArt /> */}
       {/* <FluorescentMaterial /> */}
       <JSXUI />
-      <OrbitControls />
+      {/* <OrbitControls /> */}
     </Canvas>
   );
 }
