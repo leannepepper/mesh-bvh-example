@@ -12,15 +12,15 @@ import FollowCurve from "./FollowCurve";
 import FluorescentMaterial from "./fluorescent/FluorescentMaterial";
 import CircleArt from "./CircleArt";
 import JSXUI from "./JSXUI";
+import { Vector3 } from "three";
 
 export default function App() {
   return (
     <Canvas
-      camera={
-        {
-          //position: [0, 0.4, 1.2],
-        }
-      }
+      camera={{
+        //position: [0, 0.4, 1.2],
+        position: [0, 1.0, -2.0],
+      }}
     >
       {/* <color attach="background" args={["#171d6c"]} /> */}
       {/* <Perf position="top-left" /> */}

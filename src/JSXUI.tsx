@@ -14,16 +14,24 @@ import {
 import { InstancedMesh, Color } from "three";
 
 const MAX_COUNT = 500;
+const extrudeSettings = {
+  steps: 2,
+  depth: 26,
+  bevelEnabled: false,
+  bevelThickness: 1,
+  bevelSize: 1,
+  bevelOffset: 0,
+  bevelSegments: 1,
+};
+
+function getRandomNumber(min, max) {
+  const randomNumber = Math.random() * (max - min) + min;
+  return randomNumber;
+}
 
 const createBody = (): InstancedRigidBodyProps => ({
   key: Math.random(),
-  position: [Math.random() * 1, Math.random() * 1, Math.random() * 1],
-  rotation: [
-    Math.random() * Math.PI * 2,
-    Math.random() * Math.PI * 2,
-    Math.random() * Math.PI * 2,
-  ],
-  scale: [0.5 + Math.random(), 0.5 + Math.random(), 0.5 + Math.random()],
+  position: [getRandomNumber(-1.7, 1.5), 1, getRandomNumber(-0.7, 0.5)],
   mass: 10,
   linearDamping: 0.95,
 });
@@ -79,10 +87,13 @@ function Mark() {
   const shapes = useLoader(SVGLoader, "/svg/roundedTriangle.svg");
 
   return (
-    <group scale={0.05} rotation={[Math.PI / 2, 0, 0]} position={[-2, -1, 0.5]}>
+    <group scale={0.05} rotation={[Math.PI, 0, 0]} position={[-2, 1, 0.5]}>
       {shapes.paths.map((path, i) => (
         <mesh key={i}>
-          <shapeGeometry attach="geometry" args={[path.toShapes(true)]} />
+          <extrudeGeometry
+            attach="geometry"
+            args={[path.toShapes(true), extrudeSettings]}
+          />
           <meshBasicMaterial
             attach="material"
             color={new THREE.Color("#8066CD")}
@@ -99,7 +110,7 @@ function Mark() {
 const JSXUI = () => {
   return (
     <Suspense fallback={null}>
-      <Physics interpolate debug>
+      <Physics interpolate>
         <Sand />
         <RigidBody type="fixed" colliders="hull" name="floor">
           <Mark />
