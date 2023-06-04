@@ -9,7 +9,7 @@ import {
   InstancedRigidBodyProps,
   RapierRigidBody,
   RigidBody,
-  MeshCollider,
+  ConvexHullCollider,
 } from "@react-three/rapier";
 import { InstancedMesh, Color } from "three";
 
@@ -33,7 +33,7 @@ const createBody = (): InstancedRigidBodyProps => ({
   key: Math.random(),
   position: [getRandomNumber(-1.7, 1.5), 1, getRandomNumber(-0.7, 0.5)],
   mass: 10,
-  linearDamping: 0.95,
+  linearDamping: 0.5,
 });
 
 function Sand() {
@@ -57,6 +57,10 @@ function Sand() {
 
   const geometry = new THREE.SphereGeometry(0.05, 32, 32);
 
+  const handleFall = (instanceId: number) => {
+    api.current![instanceId].setLinvel(new THREE.Vector3(0, -1, 0), true);
+  };
+
   return (
     <group>
       <InstancedRigidBodies instances={bodies} ref={api} colliders="hull">
@@ -65,16 +69,7 @@ function Sand() {
           castShadow
           args={[geometry, undefined, MAX_COUNT]}
           count={bodies.length}
-          onClick={(evt) => {
-            api.current![evt.instanceId!].applyTorqueImpulse(
-              {
-                x: 0,
-                y: 50,
-                z: 0,
-              },
-              true
-            );
-          }}
+          onClick={(evt) => handleFall(evt.instanceId!)}
         >
           <meshPhysicalMaterial />
         </instancedMesh>
@@ -86,22 +81,32 @@ function Sand() {
 function Mark() {
   const shapes = useLoader(SVGLoader, "/svg/roundedTriangle.svg");
 
+  const vertices = shapes.paths[0].toShapes(true)[0].getPoints();
+  const points = vertices.map((vertex) => [vertex.x, vertex.y, 0]);
+  const verticesArray = new Float32Array(points.flat());
+
   return (
-    <group scale={0.05} rotation={[Math.PI, 0, 0]} position={[-2, 1, 0.5]}>
+    <group scale={0.05} rotation={[Math.PI, 0, 0]} position={[-2, 1.5, 0.5]}>
+      <RigidBody type="fixed" colliders="hull" name="mark">
+        <ConvexHullCollider args={[verticesArray]} />
+      </RigidBody>
+
       {shapes.paths.map((path, i) => (
-        <mesh key={i}>
-          <extrudeGeometry
-            attach="geometry"
-            args={[path.toShapes(true), extrudeSettings]}
-          />
-          <meshBasicMaterial
-            attach="material"
-            color={new THREE.Color("#8066CD")}
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.2}
-          />
-        </mesh>
+        <RigidBody key={i} type="fixed" colliders={"trimesh"}>
+          <mesh>
+            <extrudeGeometry
+              attach="geometry"
+              args={[path.toShapes(true), extrudeSettings]}
+            />
+            <meshBasicMaterial
+              attach="material"
+              color={new THREE.Color("#8066CD")}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.2}
+            />
+          </mesh>
+        </RigidBody>
       ))}
     </group>
   );
@@ -112,9 +117,9 @@ const JSXUI = () => {
     <Suspense fallback={null}>
       <Physics interpolate>
         <Sand />
-        <RigidBody type="fixed" colliders="hull" name="floor">
-          <Mark />
-        </RigidBody>
+        {/* <RigidBody type="fixed" colliders="hull" name="floor"> */}
+        <Mark />
+        {/* </RigidBody> */}
         <OrbitControls />
       </Physics>
     </Suspense>

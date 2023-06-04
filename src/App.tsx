@@ -19,7 +19,7 @@ export default function App() {
     <Canvas
       camera={{
         //position: [0, 0.4, 1.2],
-        position: [0, 1.0, -2.0],
+        position: [0, 0.0, 4.0],
       }}
     >
       {/* <color attach="background" args={["#171d6c"]} /> */}
