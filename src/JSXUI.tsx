@@ -24,16 +24,15 @@ const extrudeSettings = {
   bevelSegments: 1,
 };
 
-function getRandomNumber(min, max) {
-  const randomNumber = Math.random() * (max - min) + min;
-  return randomNumber;
+function clampNumber(number, min, max) {
+  return Math.min(Math.max(number, min), max);
 }
-
-const createBody = (): InstancedRigidBodyProps => ({
+const offset = -1.75;
+const createBody = (index: number): InstancedRigidBodyProps => ({
   key: Math.random(),
-  position: [getRandomNumber(-1.7, 1.5), 1, getRandomNumber(-0.7, 0.5)],
+  position: [index * 0.1 + offset, 1.4, 0],
   mass: 10,
-  linearDamping: 0.5,
+  linearDamping: 10.5,
 });
 
 function Sand() {
@@ -42,8 +41,8 @@ function Sand() {
 
   const [bodies, setBodies] = useState<InstancedRigidBodyProps[]>(() =>
     Array.from({
-      length: 100,
-    }).map(() => createBody())
+      length: 33,
+    }).map((value, index) => createBody(index))
   );
 
   useEffect(() => {
@@ -63,7 +62,12 @@ function Sand() {
 
   return (
     <group>
-      <InstancedRigidBodies instances={bodies} ref={api} colliders="hull">
+      <InstancedRigidBodies
+        // type="fixed"
+        instances={bodies}
+        ref={api}
+        colliders="hull"
+      >
         <instancedMesh
           ref={ref}
           castShadow
@@ -115,11 +119,9 @@ function Mark() {
 const JSXUI = () => {
   return (
     <Suspense fallback={null}>
-      <Physics interpolate>
+      <Physics>
         <Sand />
-        {/* <RigidBody type="fixed" colliders="hull" name="floor"> */}
         <Mark />
-        {/* </RigidBody> */}
         <OrbitControls />
       </Physics>
     </Suspense>
