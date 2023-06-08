@@ -28,9 +28,22 @@ function clampNumber(number, min, max) {
   return Math.min(Math.max(number, min), max);
 }
 const offset = -1.75;
+
+function getPosition(index): [number, number, number] {
+  const rowLength = 33;
+  const offsetY = index > rowLength ? 1.4 : 1.3;
+  const offsetX = index % rowLength;
+
+  const x = offsetX * 0.1 + offset;
+  const y = offsetY;
+  const z = 0;
+
+  return [x, y, z];
+}
+
 const createBody = (index: number): InstancedRigidBodyProps => ({
   key: Math.random(),
-  position: [index * 0.1 + offset, 1.4, 0],
+  position: getPosition(index),
   mass: 10,
   linearDamping: 10.5,
 });
@@ -41,7 +54,7 @@ function Sand() {
 
   const [bodies, setBodies] = useState<InstancedRigidBodyProps[]>(() =>
     Array.from({
-      length: 33,
+      length: 66,
     }).map((value, index) => createBody(index))
   );
 
