@@ -22,7 +22,7 @@ export default function App() {
         position: [0, 0.0, 4.0],
       }}
     >
-      {/* <color attach="background" args={["#171d6c"]} /> */}
+      <color attach="background" args={["#171d6c"]} />
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
       {/* <CustomText /> */}

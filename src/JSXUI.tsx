@@ -1,8 +1,9 @@
-import { OrbitControls, Points, Stars } from "@react-three/drei";
+import { OrbitControls, Points, Sparkles } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
+
 import {
   Physics,
   InstancedRigidBodies,
@@ -24,12 +25,8 @@ const extrudeSettings = {
   bevelSegments: 1,
 };
 
-function clampNumber(number, min, max) {
-  return Math.min(Math.max(number, min), max);
-}
-const offset = -1.75;
-
 function getPosition(index): [number, number, number] {
+  const offset = -1.75;
   const rowLength = 33;
   const offsetY = index > rowLength ? 1.4 : 1.3;
   const offsetX = index % rowLength;
@@ -69,10 +66,6 @@ function Sand() {
 
   const geometry = new THREE.SphereGeometry(0.05, 32, 32);
 
-  const handleFall = (instanceId: number) => {
-    api.current![instanceId].setLinvel(new THREE.Vector3(0, -1, 0), true);
-  };
-
   return (
     <group>
       <InstancedRigidBodies
@@ -86,7 +79,6 @@ function Sand() {
           castShadow
           args={[geometry, undefined, MAX_COUNT]}
           count={bodies.length}
-          onClick={(evt) => handleFall(evt.instanceId!)}
         >
           <meshPhysicalMaterial />
         </instancedMesh>
@@ -104,26 +96,36 @@ function Mark() {
 
   return (
     <group scale={0.05} rotation={[Math.PI, 0, 0]} position={[-2, 1.5, 0.5]}>
-      <RigidBody type="fixed" colliders="hull" name="mark">
+      {/* <RigidBody type="fixed" colliders="hull" name="mark">
         <ConvexHullCollider args={[verticesArray]} />
-      </RigidBody>
+      </RigidBody> */}
 
       {shapes.paths.map((path, i) => (
-        <RigidBody key={i} type="fixed" colliders={"trimesh"}>
-          <mesh>
-            <extrudeGeometry
-              attach="geometry"
-              args={[path.toShapes(true), extrudeSettings]}
-            />
-            <meshBasicMaterial
-              attach="material"
-              color={new THREE.Color("#8066CD")}
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.2}
-            />
-          </mesh>
-        </RigidBody>
+        // <RigidBody key={i} type="fixed" colliders={"trimesh"}>
+        <mesh key={i}>
+          {/* <extrudeGeometry
+            attach="geometry"
+            args={[path.toShapes(true), extrudeSettings]}
+          /> */}
+          <shapeGeometry attach="geometry" args={[path.toShapes(true)]} />
+          <meshBasicMaterial
+            attach="material"
+            color={new THREE.Color("#8066CD")}
+            side={THREE.DoubleSide}
+            transparent
+            opacity={0.2}
+          />
+          <Sparkles
+            position={[37, 25, 0]}
+            count={3000}
+            scale={[65, 50, 0]}
+            size={1.0}
+            speed={0.2}
+            color={new THREE.Color("lightgreen")}
+            noise={3}
+          />
+        </mesh>
+        // </RigidBody>
       ))}
     </group>
   );
@@ -132,11 +134,11 @@ function Mark() {
 const JSXUI = () => {
   return (
     <Suspense fallback={null}>
-      <Physics>
-        <Sand />
-        <Mark />
-        <OrbitControls />
-      </Physics>
+      {/* <Physics> */}
+      {/* <Sand /> */}
+      <Mark />
+      <OrbitControls />
+      {/* </Physics> */}
     </Suspense>
   );
 };
