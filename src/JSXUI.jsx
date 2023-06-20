@@ -5,10 +5,28 @@ import * as THREE from 'three'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
 import { shaderMaterial, useFBO, useTexture } from '@react-three/drei'
 import { extend, useFrame, useThree } from '@react-three/fiber'
+import createStore from 'zustand'
 
 import { useEffect, useRef, useState } from 'react'
 
 import { Vector2 } from 'three'
+
+const useStore = createStore((set, get) => ({
+  fields: {
+    sphereField: {
+      radius: 12,
+      position: new THREE.Vector3(0, 0, 100),
+      range: [0, 10],
+      falloff: undefined
+    }
+  },
+  rTarget: null,
+  gTarget: null,
+  bTarget: null,
+  aTarget: null,
+  transforming: false,
+  orbitControls: null
+}))
 
 function Mark () {
   const shapes = useLoader(SVGLoader, '/svg/roundedTriangle.svg')
@@ -153,8 +171,15 @@ extend({ DepthFadeMaterial })
 function MyParticles ({ depthTexture, ...props }) {
   const camera = useThree(state => state.camera)
 
-  const depthParticle = useRef()
-  const smoke = useTexture('./smoke.png')
+  const smoke = useTexture('./textures/smoke.png')
+  // const depthTextureRef = useRef()
+
+  // useEffect(() => {
+  //   if (depthTextureRef.current && depthTexture) {
+  //     depthTextureRef.current.image = depthTexture.image
+  //     depthTextureRef.current.needsUpdate = true
+  //   }
+  // }, [depthTexture])
 
   const dfMaterial = useRef(null)
   const instance = useRef(null)
@@ -236,25 +261,23 @@ function MyParticles ({ depthTexture, ...props }) {
 }
 
 function Scene () {
-  //useStore((state) => state.rTarget);
-  const [rTarget, setRTarget] = useState(null)
+  useStore(state => state.rTarget)
 
   const depthFBO = useFBO(window.innerWidth, window.innerHeight)
 
   useEffect(() => {
     if (depthFBO) {
       depthFBO.depthBuffer = true
-      depthFBO.depthTexture = new THREE.DepthTexture(
-        window.innerWidth,
-        window.innerHeight
-      )
+      depthFBO.depthTexture = new THREE.DepthTexture()
       depthFBO.depthTexture.format = THREE.DepthFormat
       depthFBO.depthTexture.type = THREE.UnsignedShortType
     }
   }, [depthFBO])
 
   useEffect(() => {
-    setRTarget(depthFBO)
+    useStore.setState({
+      rTarget: depthFBO
+    })
   })
 
   useFrame(({ gl, scene, camera }) => {
@@ -262,7 +285,7 @@ function Scene () {
     gl.render(scene, camera)
   }, -2)
 
-  const mesh = useRef(null)
+  const mesh = useRef()
 
   useFrame(() => {
     mesh.current.rotation.x += 0.0125
@@ -272,10 +295,9 @@ function Scene () {
   return (
     <>
       <MyParticles depthTexture={depthFBO?.depthTexture} />
-
       <mesh ref={mesh}>
         <torusKnotGeometry args={[1, 0.4, 128, 128]} />
-        <meshBasicMaterial color='#080406' side={THREE.DoubleSide} />
+        <meshBasicMaterial color='darkgreen' side={THREE.DoubleSide} />
       </mesh>
     </>
   )
@@ -283,13 +305,30 @@ function Scene () {
 
 useTexture.preload('./textures/smoke.png')
 
+function Render () {
+  useFrame(({ gl }) => {
+    gl.autoClear = false
+  }, -1)
+
+  useFrame(({ gl, camera, scene }) => {
+    // render main scene
+    gl.setRenderTarget(null)
+    gl.render(scene, camera)
+  }, 1)
+
+  return null
+}
+
 const JSXUI = () => {
   return (
-    <Suspense fallback={null}>
-      <Mark />
-      {/* <Scene /> */}
+    <>
+      <Suspense fallback={null}>
+        <Scene />
+        <Mark />
+      </Suspense>
+      <Render />
       <OrbitControls />
-    </Suspense>
+    </>
   )
 }
 
