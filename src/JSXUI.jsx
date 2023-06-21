@@ -49,9 +49,9 @@ function Mark () {
           />
           <Sparkles
             position={[37, 25, 0]}
-            count={500}
-            scale={[65, 50, 0]}
-            size={1.5}
+            count={1000}
+            scale={[65, 50, 10]}
+            size={0.5}
             speed={0.1}
             color={new THREE.Color('lightgreen')}
             noise={3}
@@ -170,28 +170,9 @@ extend({ DepthFadeMaterial })
 
 function MyParticles ({ depthTexture, ...props }) {
   const camera = useThree(state => state.camera)
-
   const smoke = useTexture('./textures/smoke.png')
-  // const depthTextureRef = useRef()
-
-  // useEffect(() => {
-  //   if (depthTextureRef.current && depthTexture) {
-  //     depthTextureRef.current.image = depthTexture.image
-  //     depthTextureRef.current.needsUpdate = true
-  //   }
-  // }, [depthTexture])
-
   const dfMaterial = useRef(null)
   const instance = useRef(null)
-
-  //   const { range } = useControls({
-  //     range: {
-  //       min: 0,
-  //       max: 40,
-  //       step: 0.001,
-  //       value: [0, 0.8],
-  //     },
-  //   });
 
   useFrame(({ clock }) => {
     if (dfMaterial.current) {
@@ -200,7 +181,7 @@ function MyParticles ({ depthTexture, ...props }) {
     }
   })
 
-  const NUM = 10
+  const NUM = 2
   const [objects] = useState(() =>
     [...new Array(NUM * NUM)].map(() => new THREE.Object3D())
   )
@@ -211,13 +192,17 @@ function MyParticles ({ depthTexture, ...props }) {
     for (let x = -NUM / 2; x < NUM / 2; x += 1) {
       for (let y = -NUM / 2; y < NUM / 2; y += 1) {
         objects[id].position.set(
-          Math.sin(x + y) * Math.random() * 5,
-          Math.cos(x + y) * Math.random() * 5,
-          Math.random() * 1.5
+          Math.sin(x + y) * Math.random() * 2,
+          Math.cos(x + y) * Math.random() * 2,
+          Math.random() * 0.8
         )
 
         objects[id].rotation.set(0, 0, Math.random() * Math.PI)
         objects[id].scale.setScalar(Math.random() * 4 + 1)
+
+        // set direction of rotation randomly
+        const randomDirection = Math.random() > 0.5 ? 1 : -1
+        objects[id].randomDirection = randomDirection
 
         objects[id].updateMatrix()
         instance.current.setMatrixAt(id, objects[id++].matrix)
@@ -230,7 +215,7 @@ function MyParticles ({ depthTexture, ...props }) {
     let id = 0
 
     for (let x = 0; x < NUM * NUM; x++) {
-      objects[id].rotation.z += 0.01
+      objects[id].rotation.z += 0.003 * objects[id].randomDirection
 
       objects[id].updateMatrix()
       instance.current.setMatrixAt(id, objects[id++].matrix)
@@ -285,20 +270,10 @@ function Scene () {
     gl.render(scene, camera)
   }, -2)
 
-  const mesh = useRef()
-
-  useFrame(() => {
-    mesh.current.rotation.x += 0.0125
-    mesh.current.rotation.y += 0.0125
-  })
-
   return (
     <>
       <MyParticles depthTexture={depthFBO?.depthTexture} />
-      <mesh ref={mesh}>
-        <torusKnotGeometry args={[1, 0.4, 128, 128]} />
-        <meshBasicMaterial color='darkgreen' side={THREE.DoubleSide} />
-      </mesh>
+      <Mark />
     </>
   )
 }
@@ -324,7 +299,6 @@ const JSXUI = () => {
     <>
       <Suspense fallback={null}>
         <Scene />
-        <Mark />
       </Suspense>
       <Render />
       <OrbitControls />
