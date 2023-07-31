@@ -12,19 +12,20 @@ import FollowCurve from "./FollowCurve";
 import FluorescentMaterial from "./fluorescent/FluorescentMaterial";
 import CircleArt from "./CircleArt";
 import JSXUI from "./JSXUI";
-import { Vector3 } from "three";
+import * as THREE from "three";
+import FBOExample from "./FBOExample";
 
 export default function App() {
   return (
     <Canvas
       camera={{
         //position: [0, 0.4, 1.2],
-        position: [0, 0, 5],
+        position: new THREE.Vector3(0, 0, 5),
         near: 1,
         far: 300,
       }}
     >
-      <color attach="background" args={["#171d6c"]} />
+      {/* <color attach="background" args={["#171d6c"]} /> */}
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
       {/* <CustomText /> */}
@@ -36,8 +37,9 @@ export default function App() {
       {/* <FollowCurve /> */}
       {/* <CircleArt /> */}
       {/* <FluorescentMaterial /> */}
-      <JSXUI />
-      {/* <OrbitControls /> */}
+      {/* <JSXUI /> */}
+      <FBOExample />
+      <OrbitControls />
     </Canvas>
   );
 }
