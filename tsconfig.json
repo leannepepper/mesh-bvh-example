@@ -1,5 +1,5 @@
 {
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "./src/images.d.ts"],
   "compilerOptions": {
     "strict": false,
     "esModuleInterop": true,

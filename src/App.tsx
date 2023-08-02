@@ -21,11 +21,11 @@ export default function App() {
       camera={{
         //position: [0, 0.4, 1.2],
         position: new THREE.Vector3(0, 0, 5),
-        near: 1,
-        far: 300,
+        // near: 1,
+        // far: 300,
       }}
     >
-      {/* <color attach="background" args={["#171d6c"]} /> */}
+      <color attach="background" args={["#171d6c"]} />
       {/* <Perf position="top-left" /> */}
       <ambientLight intensity={0.5} />
       {/* <CustomText /> */}
