@@ -43,7 +43,7 @@ const materialProperties = {
 };
 
 export default function FBOExample() {
-  const size = 32;
+  const size = 256;
   const number = size * size;
   const data = new Float32Array(number * 4);
 
@@ -80,10 +80,10 @@ export default function FBOExample() {
   // Create data for the DataTexture
   for (let i = 0; i < number; i++) {
     const i4 = i * 4;
-    data[i4 + 0] = Math.random();
-    data[i4 + 1] = Math.random();
-    data[i4 + 2] = Math.random();
-    data[i4 + 3] = Math.random();
+    data[i4 + 0] = Math.random() * 2 - 1;
+    data[i4 + 1] = Math.random() * 2 - 1;
+    data[i4 + 2] = 0;
+    data[i4 + 3] = 1;
   }
 
   const texture = new THREE.DataTexture(
