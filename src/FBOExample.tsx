@@ -74,7 +74,8 @@ uniform float uTime;
 uniform sampler2D uTexture;
 void main() {
     vec4 position = texture2D(uTexture, vUv);
-    
+    position.xy += normalize(position.xy) * 0.01;
+
     gl_FragColor = vec4(position);
 }
 `;
@@ -151,28 +152,28 @@ export default function FBOExample() {
   /**
    * Create the FBO Mesh, Geometry and Material
    */
+  const fboUniforms = {
+    uTime: { value: 0 },
+    uTexture: { value: texture },
+  };
   let fboGeometry = new THREE.PlaneGeometry(2, 2, 2, 2);
   let fboMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 },
-      uTexture: { value: texture },
-    },
+    uniforms: fboUniforms,
     vertexShader: fboVertexShader,
     fragmentShader: fboFragmentShader,
-  });
-
-  useEffect(() => {
-    uniforms.uTexture.value = texture;
-  }, []);
-
-  useFrame((state) => {
-    uniforms.uTime.value = state.clock.getElapsedTime();
   });
 
   let fboMesh = new THREE.Mesh(fboGeometry, fboMaterial);
   fboScene.add(fboMesh);
 
-  const renderTarget = new THREE.WebGLRenderTarget(size, size, {
+  let renderTargetA = new THREE.WebGLRenderTarget(size, size, {
+    minFilter: THREE.NearestFilter,
+    magFilter: THREE.NearestFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
+  });
+
+  let renderTargetB = new THREE.WebGLRenderTarget(size, size, {
     minFilter: THREE.NearestFilter,
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat,
@@ -182,28 +183,32 @@ export default function FBOExample() {
   const { gl, scene, camera } = useThree();
 
   useFrame((state) => {
-    gl.setRenderTarget(renderTarget);
+    fboUniforms.uTime.value = state.clock.elapsedTime;
+  });
+
+  // first -3 then -2 then -1
+
+  useFrame((state) => {
+    gl.setRenderTarget(renderTargetA);
     gl.render(fboScene, fboCamera);
+    gl.setRenderTarget(null);
+    gl.render(scene, camera);
+  }, -3);
+
+  // swap render targets
+  useFrame((state) => {
+    const temp = renderTargetA;
+    renderTargetA = renderTargetB;
+    renderTargetB = temp;
   }, -2);
+
+  useFrame((state) => {
+    fboUniforms.uTexture.value = renderTargetB.texture as THREE.DataTexture;
+  }, -1);
 
   return (
     <>
-      <MyParticles renderTarget={renderTarget} />
-      <Render />
+      <MyParticles renderTarget={renderTargetA} />
     </>
   );
-}
-
-function Render() {
-  useFrame(({ gl }) => {
-    gl.autoClear = false;
-  }, -1);
-
-  useFrame(({ gl, camera, scene }) => {
-    // render main scene
-    gl.setRenderTarget(null);
-    gl.render(scene, camera);
-  }, 1);
-
-  return null;
 }
