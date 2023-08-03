@@ -1,9 +1,32 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
-import texture from "./textures/rock.png";
+import rockTexture from "./textures/rock.png";
 
-const vertexShader = `
+/**
+ * Create the DataTexture and set the data
+ */
+const size = 32;
+const number = size * size;
+const data = new Float32Array(number * 4);
+for (let i = 0; i < number; i++) {
+  const i4 = i * 4;
+  data[i4 + 0] = Math.random() * 2 - 1;
+  data[i4 + 1] = Math.random() * 2 - 1;
+  data[i4 + 2] = 0;
+  data[i4 + 3] = 1;
+}
+
+const texture = new THREE.DataTexture(
+  data,
+  size,
+  size,
+  THREE.RGBAFormat,
+  THREE.FloatType
+);
+texture.needsUpdate = true;
+
+const renderedVertexShader = `
   varying vec2 vUv;
   uniform float uTime;
   uniform sampler2D uTexture;
@@ -21,34 +44,53 @@ const vertexShader = `
   }
 `;
 
-const fragmentShader = `
+const renderedFragmentShader = `
 varying vec2 vUv;
 uniform float uTime;
 uniform sampler2D uTexture;
 void main() {
-   vec4 color = texture2D(uTexture, vUv);
-   // gl_FragColor = vec4(color);
     gl_FragColor = vec4(vUv, 0.0, 1.0);
+}
+`;
+
+const fboVertexShader = `
+varying vec2 vUv;
+uniform float uTime;
+uniform sampler2D uTexture;
+
+void main() {
+    vUv = uv;
+
+    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+    gl_PointSize =  ( 10.0 / -mvPosition.z );
+    gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
+const fboFragmentShader = `
+varying vec2 vUv;
+uniform float uTime;
+uniform sampler2D uTexture;
+void main() {
+    vec4 position = texture2D(uTexture, vUv);
+    
+    gl_FragColor = vec4(position);
 }
 `;
 
 const uniforms = {
   uTime: { value: 0 },
-  uTexture: { value: new THREE.TextureLoader().load(texture) },
+  uTexture: { value: texture },
 };
 
 const materialProperties = {
   uniforms,
-  vertexShader,
-  fragmentShader,
+  vertexShader: renderedVertexShader,
+  fragmentShader: renderedFragmentShader,
 };
 
-export default function FBOExample() {
-  const { gl } = useThree();
-  const size = 32;
-  const number = size * size;
-  const data = new Float32Array(number * 4);
-
+function MyParticles({ renderTarget }) {
   /**
    * Create the BufferGeometry and set the attributes
    */
@@ -82,24 +124,42 @@ export default function FBOExample() {
   }, [bufferGeometry]);
 
   /**
-   * Create the DataTexture and set the data
+   * Use the RenderTarget as a texture and pass it to the shader
    */
-  for (let i = 0; i < number; i++) {
-    const i4 = i * 4;
-    data[i4 + 0] = Math.random() * 2 - 1;
-    data[i4 + 1] = Math.random() * 2 - 1;
-    data[i4 + 2] = 0;
-    data[i4 + 3] = 1;
-  }
+  useEffect(() => {
+    if (uniforms.uTexture) {
+      uniforms.uTexture.value = renderTarget.texture;
+    }
+  }, [renderTarget]);
 
-  const texture = new THREE.DataTexture(
-    data,
-    size,
-    size,
-    THREE.RGBAFormat,
-    THREE.FloatType
+  return (
+    <>
+      <points>
+        <bufferGeometry ref={bufferGeometry} />
+        <shaderMaterial attach="material" {...materialProperties} />
+      </points>
+    </>
   );
-  texture.needsUpdate = true;
+}
+
+export default function FBOExample() {
+  const fboScene = new THREE.Scene();
+  const fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -2, 2);
+  fboCamera.position.z = 1;
+  fboCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  /**
+   * Create the FBO Mesh, Geometry and Material
+   */
+  let fboGeometry = new THREE.PlaneGeometry(2, 2, 2, 2);
+  let fboMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uTexture: { value: texture },
+    },
+    vertexShader: fboVertexShader,
+    fragmentShader: fboFragmentShader,
+  });
 
   useEffect(() => {
     uniforms.uTexture.value = texture;
@@ -109,33 +169,40 @@ export default function FBOExample() {
     uniforms.uTime.value = state.clock.getElapsedTime();
   });
 
+  let fboMesh = new THREE.Mesh(fboGeometry, fboMaterial);
+  fboScene.add(fboMesh);
+
+  const renderTarget = new THREE.WebGLRenderTarget(size, size, {
+    minFilter: THREE.NearestFilter,
+    magFilter: THREE.NearestFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
+  });
+
+  const { gl, scene, camera } = useThree();
+
+  useFrame((state) => {
+    gl.setRenderTarget(renderTarget);
+    gl.render(fboScene, fboCamera);
+  }, -2);
+
   return (
     <>
-      <points>
-        <bufferGeometry ref={bufferGeometry} />
-        <shaderMaterial attach="material" {...materialProperties} />
-      </points>
-      <RenderFBO />
+      <MyParticles renderTarget={renderTarget} />
+      <Render />
     </>
   );
 }
 
-function RenderFBO() {
-  const fboScene = new THREE.Scene();
-  const fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -2, 2);
-  fboCamera.position.z = 1;
-  fboCamera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  let fboGeometry = new THREE.PlaneGeometry(2, 2, 2, 2);
-  let fboMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    wireframe: true,
-  });
-  let fboMesh = new THREE.Mesh(fboGeometry, fboMaterial);
-  fboScene.add(fboMesh);
+function Render() {
+  useFrame(({ gl }) => {
+    gl.autoClear = false;
+  }, -1);
 
   useFrame(({ gl, camera, scene }) => {
-    gl.render(fboScene, fboCamera);
+    // render main scene
+    gl.setRenderTarget(null);
+    gl.render(scene, camera);
   }, 1);
 
   return null;
