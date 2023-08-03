@@ -1,4 +1,4 @@
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import texture from "./textures/rock.png";
@@ -27,7 +27,8 @@ uniform float uTime;
 uniform sampler2D uTexture;
 void main() {
    vec4 color = texture2D(uTexture, vUv);
-    gl_FragColor = vec4(color);
+   // gl_FragColor = vec4(color);
+    gl_FragColor = vec4(vUv, 0.0, 1.0);
 }
 `;
 
@@ -43,11 +44,14 @@ const materialProperties = {
 };
 
 export default function FBOExample() {
-  const size = 256;
+  const { gl } = useThree();
+  const size = 32;
   const number = size * size;
   const data = new Float32Array(number * 4);
 
-  // Create positions and uvs for the bufferGeometry
+  /**
+   * Create the BufferGeometry and set the attributes
+   */
   const bufferGeometry = useRef<THREE.BufferGeometry>();
   const positions = new Float32Array(number * 3);
   const uvs = new Float32Array(number * 2);
@@ -77,7 +81,9 @@ export default function FBOExample() {
     }
   }, [bufferGeometry]);
 
-  // Create data for the DataTexture
+  /**
+   * Create the DataTexture and set the data
+   */
   for (let i = 0; i < number; i++) {
     const i4 = i * 4;
     data[i4 + 0] = Math.random() * 2 - 1;
@@ -104,9 +110,33 @@ export default function FBOExample() {
   });
 
   return (
-    <points>
-      <bufferGeometry ref={bufferGeometry} />
-      <shaderMaterial attach="material" {...materialProperties} />
-    </points>
+    <>
+      <points>
+        <bufferGeometry ref={bufferGeometry} />
+        <shaderMaterial attach="material" {...materialProperties} />
+      </points>
+      <RenderFBO />
+    </>
   );
+}
+
+function RenderFBO() {
+  const fboScene = new THREE.Scene();
+  const fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -2, 2);
+  fboCamera.position.z = 1;
+  fboCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  let fboGeometry = new THREE.PlaneGeometry(2, 2, 2, 2);
+  let fboMaterial = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    wireframe: true,
+  });
+  let fboMesh = new THREE.Mesh(fboGeometry, fboMaterial);
+  fboScene.add(fboMesh);
+
+  useFrame(({ gl, camera, scene }) => {
+    gl.render(fboScene, fboCamera);
+  }, 1);
+
+  return null;
 }
