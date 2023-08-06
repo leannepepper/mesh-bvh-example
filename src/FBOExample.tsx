@@ -4,17 +4,26 @@ import * as THREE from "three";
 import rockTexture from "./textures/rock.png";
 
 /**
+ * Utility Functions
+ */
+function lerp(a, b, n) {
+  return (1 - n) * a + n * b;
+}
+
+/**
  * Create the DataTexture and set the data
  */
 const size = 32;
 const number = size * size;
 const data = new Float32Array(number * 4);
-for (let i = 0; i < number; i++) {
-  const i4 = i * 4;
-  data[i4 + 0] = Math.random() * 2 - 1;
-  data[i4 + 1] = Math.random() * 2 - 1;
-  data[i4 + 2] = 0;
-  data[i4 + 3] = 1;
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+    const index = i * size + j;
+    data[index * 4 + 0] = lerp(-0.5, 0.5, i / (size - 1));
+    data[index * 4 + 1] = lerp(-0.5, 0.5, j / (size - 1));
+    data[index * 4 + 2] = 0;
+    data[index * 4 + 3] = 1;
+  }
 }
 
 const texture = new THREE.DataTexture(
@@ -74,7 +83,7 @@ uniform float uTime;
 uniform sampler2D uTexture;
 void main() {
     vec4 position = texture2D(uTexture, vUv);
-    position.xy += normalize(position.xy) * 0.01;
+   // position.xy += normalize(position.xy) * 0.001;
 
     gl_FragColor = vec4(position);
 }
@@ -134,16 +143,14 @@ function MyParticles({ renderTarget }) {
   }, [renderTarget]);
 
   return (
-    <>
-      <points>
-        <bufferGeometry ref={bufferGeometry} />
-        <shaderMaterial attach="material" {...materialProperties} />
-      </points>
-    </>
+    <points onClick={(e) => console.log("CLICK!")}>
+      <bufferGeometry ref={bufferGeometry} />
+      <shaderMaterial attach="material" {...materialProperties} />
+    </points>
   );
 }
 
-export default function FBOExample() {
+export function FBOTargets() {
   const fboScene = new THREE.Scene();
   const fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -2, 2);
   fboCamera.position.z = 1;
@@ -187,7 +194,6 @@ export default function FBOExample() {
   });
 
   // first -3 then -2 then -1
-
   useFrame((state) => {
     gl.setRenderTarget(renderTargetA);
     gl.render(fboScene, fboCamera);
@@ -209,6 +215,45 @@ export default function FBOExample() {
   return (
     <>
       <MyParticles renderTarget={renderTargetA} />
+    </>
+  );
+}
+
+export default function FBOExample() {
+  const { pointer } = useThree();
+
+  return (
+    <>
+      <FBOTargets />
+      <Dummy />
+    </>
+  );
+}
+
+function Dummy() {
+  const mouseRef = useRef<THREE.Mesh>();
+  const planeRef = useRef<THREE.Mesh>();
+  const { pointer } = useThree();
+
+  useFrame((state) => {
+    // get the intersections from the raycaster
+    const intersections = state.raycaster.intersectObject(planeRef.current);
+    // if there is an intersection, set the position of the mouseRef to the first intersection point
+    if (intersections.length > 0) {
+      mouseRef.current.position.copy(intersections[0].point);
+    }
+  });
+
+  return (
+    <>
+      <mesh ref={planeRef}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial transparent opacity={0.0} />
+      </mesh>
+      <mesh ref={mouseRef}>
+        <sphereGeometry args={[0.1]} />
+        <meshNormalMaterial />
+      </mesh>
     </>
   );
 }
