@@ -91,8 +91,12 @@ void main() {
     vec2 original = texture2D(uOriginalPosition, vUv).xy;
 
     vec2 force = original - uMouse.xy;
+    float length = length(force);
+    float forceFactor = 1.0/max(1.0, length * 5.0);
 
-    position = original + normalize(force) * 0.1;
+    vec2 positionToGo = original + normalize(force) * forceFactor * 0.1;
+
+    position.xy += (positionToGo - position.xy) * 0.1;
 
     gl_FragColor = vec4(position, 0.0, 1.0);
 }
