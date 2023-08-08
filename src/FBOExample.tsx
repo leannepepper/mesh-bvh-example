@@ -65,7 +65,9 @@ void main() {
 const fboVertexShader = `
 varying vec2 vUv;
 uniform float uTime;
-uniform sampler2D uTexture;
+uniform sampler2D uCurrentPosition;
+uniform sampler2D uOriginalPosition;
+uniform vec2 uMouse;
 
 void main() {
     vUv = uv;
@@ -80,12 +82,19 @@ void main() {
 const fboFragmentShader = `
 varying vec2 vUv;
 uniform float uTime;
-uniform sampler2D uTexture;
-void main() {
-    vec4 position = texture2D(uTexture, vUv);
-   // position.xy += normalize(position.xy) * 0.001;
+uniform sampler2D uCurrentPosition;
+uniform sampler2D uOriginalPosition;
+uniform vec2 uMouse;
 
-    gl_FragColor = vec4(position);
+void main() {
+    vec2 position = texture2D(uCurrentPosition, vUv).xy;
+    vec2 original = texture2D(uOriginalPosition, vUv).xy;
+
+    vec2 force = original - uMouse.xy;
+
+    position = original + normalize(force) * 0.1;
+
+    gl_FragColor = vec4(position, 0.0, 1.0);
 }
 `;
 
@@ -151,6 +160,8 @@ function MyParticles({ renderTarget }) {
 }
 
 export function FBOTargets() {
+  const mouseRef = useRef<THREE.Mesh>();
+  const planeRef = useRef<THREE.Mesh>();
   const fboScene = new THREE.Scene();
   const fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -2, 2);
   fboCamera.position.z = 1;
@@ -161,8 +172,11 @@ export function FBOTargets() {
    */
   const fboUniforms = {
     uTime: { value: 0 },
-    uTexture: { value: texture },
+    uCurrentPosition: { value: texture },
+    uOriginalPosition: { value: texture },
+    uMouse: { value: new THREE.Vector2(0, 0) },
   };
+
   let fboGeometry = new THREE.PlaneGeometry(2, 2, 2, 2);
   let fboMaterial = new THREE.ShaderMaterial({
     uniforms: fboUniforms,
@@ -191,6 +205,16 @@ export function FBOTargets() {
 
   useFrame((state) => {
     fboUniforms.uTime.value = state.clock.elapsedTime;
+
+    const intersections = state.raycaster.intersectObject(planeRef.current);
+    // if there is an intersection, set the position of the mouseRef to the first intersection point
+    if (intersections.length > 0) {
+      mouseRef.current.position.copy(intersections[0].point);
+      fboUniforms.uMouse.value = new THREE.Vector2(
+        intersections[0].point.x,
+        intersections[0].point.y
+      );
+    }
   });
 
   // first -3 then -2 then -1
@@ -209,51 +233,25 @@ export function FBOTargets() {
   }, -2);
 
   useFrame((state) => {
-    fboUniforms.uTexture.value = renderTargetB.texture as THREE.DataTexture;
+    fboUniforms.uCurrentPosition.value =
+      renderTargetB.texture as THREE.DataTexture;
   }, -1);
 
   return (
     <>
       <MyParticles renderTarget={renderTargetA} />
-    </>
-  );
-}
-
-export default function FBOExample() {
-  const { pointer } = useThree();
-
-  return (
-    <>
-      <FBOTargets />
-      <Dummy />
-    </>
-  );
-}
-
-function Dummy() {
-  const mouseRef = useRef<THREE.Mesh>();
-  const planeRef = useRef<THREE.Mesh>();
-  const { pointer } = useThree();
-
-  useFrame((state) => {
-    // get the intersections from the raycaster
-    const intersections = state.raycaster.intersectObject(planeRef.current);
-    // if there is an intersection, set the position of the mouseRef to the first intersection point
-    if (intersections.length > 0) {
-      mouseRef.current.position.copy(intersections[0].point);
-    }
-  });
-
-  return (
-    <>
       <mesh ref={planeRef}>
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial transparent opacity={0.0} />
       </mesh>
       <mesh ref={mouseRef}>
-        <sphereGeometry args={[0.1]} />
+        <sphereGeometry args={[0.01]} />
         <meshNormalMaterial />
       </mesh>
     </>
   );
+}
+
+export default function FBOExample() {
+  return <FBOTargets />;
 }

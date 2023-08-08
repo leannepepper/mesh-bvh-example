@@ -20,7 +20,7 @@ export default function App() {
     <Canvas
       camera={{
         //position: [0, 0.4, 1.2],
-        position: new THREE.Vector3(0, 0, 5),
+        position: new THREE.Vector3(0, 0, 1),
         // near: 1,
         // far: 300,
       }}
