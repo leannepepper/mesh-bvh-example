@@ -39,15 +39,15 @@ const renderedVertexShader = `
   varying vec2 vUv;
   uniform float uTime;
   uniform sampler2D uTexture;
-
+ 
   void main() {
     vUv = uv;
     vec3 newPosition = position;
     vec4 color = texture2D(uTexture, vUv);
     newPosition.xy = color.xy;
-
+ 
     vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
-
+ 
     gl_PointSize =  ( 10.0 / -mvPosition.z );
     gl_Position = projectionMatrix * mvPosition;
   }
@@ -68,12 +68,12 @@ uniform float uTime;
 uniform sampler2D uCurrentPosition;
 uniform sampler2D uOriginalPosition;
 uniform vec2 uMouse;
-
+ 
 void main() {
     vUv = uv;
-
+ 
     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
+ 
     gl_PointSize =  ( 10.0 / -mvPosition.z );
     gl_Position = projectionMatrix * mvPosition;
 }
@@ -85,19 +85,19 @@ uniform float uTime;
 uniform sampler2D uCurrentPosition;
 uniform sampler2D uOriginalPosition;
 uniform vec2 uMouse;
-
+ 
 void main() {
     vec2 position = texture2D(uCurrentPosition, vUv).xy;
     vec2 original = texture2D(uOriginalPosition, vUv).xy;
-
+ 
     vec2 force = original - uMouse.xy;
     float length = length(force);
     float forceFactor = 1.0/max(1.0, length * 5.0);
-
+ 
     vec2 positionToGo = original + normalize(force) * forceFactor * 0.1;
-
+ 
     position.xy += (positionToGo - position.xy) * 0.1;
-
+ 
     gl_FragColor = vec4(position, 0.0, 1.0);
 }
 `;
