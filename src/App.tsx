@@ -14,32 +14,34 @@ import CircleArt from "./CircleArt";
 import JSXUI from "./JSXUI";
 import * as THREE from "three";
 import FBOExample from "./FBOExample";
+import { PostProcessing } from "./PostProcessing";
 
 export default function App() {
   return (
-    <Canvas
-      camera={{
-        //position: [0, 0.4, 1.2],
-        position: new THREE.Vector3(0, 0, 1),
-        // near: 1,
-        // far: 300,
-      }}
-    >
-      <color attach="background" args={["#171d6c"]} />
-      {/* <Perf position="top-left" /> */}
-      <ambientLight intensity={0.5} />
-      {/* <CustomText /> */}
-      {/* <TextWithMask /> */}
-      {/* <BoxStencil /> */}
-      {/* <MorphTargets /> */}
-      {/* <MorphTargetsBox /> */}
-      {/* <MorphTargetsPath /> */}
-      {/* <FollowCurve /> */}
-      {/* <CircleArt /> */}
-      {/* <FluorescentMaterial /> */}
-      {/* <JSXUI /> */}
-      <FBOExample />
-      <OrbitControls />
-    </Canvas>
+    // <Canvas
+    //   camera={{
+    //     //position: [0, 0.4, 1.2],
+    //     position: new THREE.Vector3(0, 0, 1),
+    //     // near: 1,
+    //     // far: 300,
+    //   }}
+    // >
+    //   <color attach="background" args={["#171d6c"]} />
+    //   {/* <Perf position="top-left" /> */}
+    //   <ambientLight intensity={0.5} />
+    //   {/* <CustomText /> */}
+    //   {/* <TextWithMask /> */}
+    //   {/* <BoxStencil /> */}
+    //   {/* <MorphTargets /> */}
+    //   {/* <MorphTargetsBox /> */}
+    //   {/* <MorphTargetsPath /> */}
+    //   {/* <FollowCurve /> */}
+    //   {/* <CircleArt /> */}
+    //   {/* <FluorescentMaterial /> */}
+    //   {/* <JSXUI /> */}
+    //   {/* <FBOExample /> */}
+    //   <OrbitControls />
+    // </Canvas>
+    <PostProcessing />
   );
 }
