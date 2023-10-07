@@ -17,18 +17,43 @@ float circleSDF(vec2 st) {
 }
 
 float stroke(float x, float start, float width) {
-    float d = smoothstep(start, x + width * 0.2, x + width * 0.5) 
-            - smoothstep(start, x - width * 0.1, x - width * 0.5);
+    float d = step(start, x + width * 0.5) 
+            - step(start, x - width * 0.5);
     return clamp(d, 0.0, 1.0);
 }
 
-void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
-    vec3 color = inputColor.rgb;
-    vec2 walkingPath = vec2(sin(time), cos(time));
-    vec2 centeredUV = uv - (vec2(0.5 , 0.5) * walkingPath);
+float fill( float x, float size) {
+    return 1.0 - step(size, x);
+}
 
-    float circleSDFValue = circleSDF(centeredUV);
-    color += stroke(circleSDFValue, size, -0.03);
+
+float triangleSDF(vec2 st) {
+    st = (st * 2.0 - 1.0) * 2.0;
+
+  // Introduce a sine wave pattern to the triangle's edges
+    float frequency = 25.0;  // frequency of the wave
+    float amplitude = 0.04;  // amplitude of the wave
+
+    float wave = amplitude * sin(frequency * st.x + time);
+
+    return max(abs(st.x) * 0.969025 + (st.y - wave) * 0.5, -(st.y - wave) * 0.5);
+}
+
+void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+    vec2 st = uv;
+    vec3 color = inputColor.rgb;
+
+    vec2 walkingPath = vec2(sin(time) * -cos(time), sin(time));
+    st.y = 1.0 - st.y;
+    vec2 centeredST = st - (vec2(0.5 , 0.5));
+
+    float headSDF= circleSDF(centeredST / vec2(0.2, 0.2));
+
+    vec2 tailOffset = vec2(-0.5, -0.36); // Adjust the tail position
+    float tailSDF = triangleSDF(centeredST - tailOffset);
+
+    color += fill(headSDF, 0.3);
+    color += fill(tailSDF, 0.2);
 
     outputColor = vec4(color, inputColor.a);
 }
