@@ -26,33 +26,41 @@ float fill( float x, float size) {
     return 1.0 - step(size, x);
 }
 
+vec2 rotate(vec2 st, float angle) {
+    st = mat2(cos(angle), -sin(angle),
+         sin(angle), cos(angle)) * (st - 0.5);
+
+    return st + 0.5;
+}
 
 float triangleSDF(vec2 st) {
     st = (st * 2.0 - 1.0) * 2.0;
 
   // Introduce a sine wave pattern to the triangle's edges
-    float frequency = 25.0;  // frequency of the wave
-    float amplitude = 0.04;  // amplitude of the wave
+    float frequency = 65.0;  // frequency of the wave
+    float amplitude = 0.07;  // amplitude of the wave
 
     float wave = amplitude * sin(frequency * st.x + time);
 
-    return max(abs(st.x) * 0.969025 + (st.y - wave) * 0.5, -(st.y - wave) * 0.5);
+    return max(abs(st.x) * 1.769025 + (st.y - wave) * 0.5, -st.y * 0.5 );
 }
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
     vec2 st = uv;
+    st.x *= aspect;
     vec3 color = inputColor.rgb;
 
     vec2 walkingPath = vec2(sin(time) * -cos(time), sin(time));
     st.y = 1.0 - st.y;
     vec2 centeredST = st - (vec2(0.5 , 0.5));
+    centeredST = rotate(centeredST, radians(5.0));
 
     float headSDF= circleSDF(centeredST / vec2(0.2, 0.2));
 
     vec2 tailOffset = vec2(-0.5, -0.36); // Adjust the tail position
     float tailSDF = triangleSDF(centeredST - tailOffset);
 
-    color += fill(headSDF, 0.3);
+    color += fill(headSDF, 0.1);
     color += fill(tailSDF, 0.2);
 
     outputColor = vec4(color, inputColor.a);
