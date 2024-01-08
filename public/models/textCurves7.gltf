@@ -1,0 +1,126 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0,
+                1
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "CurveMesh"
+        },
+        {
+            "mesh" : 1,
+            "name" : "CurveMesh2"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "BezierCurve.003",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0
+                    },
+                    "indices" : 1,
+                    "mode" : 1
+                }
+            ]
+        },
+        {
+            "name" : "BezierCurve.004",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 2
+                    },
+                    "indices" : 3,
+                    "mode" : 1
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 26,
+            "max" : [
+                0.007429182529449463,
+                0.7257896661758423,
+                2.271371841430664
+            ],
+            "min" : [
+                -0.0026269578374922276,
+                0.3630523979663849,
+                1.2502670288085938
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5123,
+            "count" : 48,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 13,
+            "max" : [
+                0.026077432557940483,
+                0.7147248387336731,
+                1.9097429513931274
+            ],
+            "min" : [
+                -0.0009703636169433594,
+                -0.27209338545799255,
+                1.7290416955947876
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 24,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 312,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 96,
+            "byteOffset" : 312
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 156,
+            "byteOffset" : 408
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 48,
+            "byteOffset" : 564
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 612,
+            "uri" : "data:application/octet-stream;base64,gHDzOwHiuT6vGQ5ACA+QO/PY6j7bGhFAgHABO1GCCT8oXhFAkPX2OH+OGT/zQw9AHFqguvzsJT+aLAtAU14Ju7/5Lj95eAVAxvwmu8AQNT/cD/0/Ciksu/aNOD+tdu0/xAMcu1rNOT8e5tw/LFvzuuMqOT/rHsw/SI6QuokCNz/O4bs/GBEvuUSwMz+B76w/GNBsOg+QLz/ACKA/gHDzOwHiuT6vGQ5ACA+QO/PY6j7bGhFAgHABO1GCCT8oXhFAkPX2OH+OGT/zQw9AHFqguvzsJT+aLAtAU14Ju7/5Lj95eAVAxvwmu8AQNT/cD/0/Ciksu/aNOD+tdu0/xAMcu1rNOT8e5tw/LFvzuuMqOT/rHsw/SI6QuokCNz/O4bs/GBEvuUSwMz+B76w/GNBsOg+QLz/ACKA/AAABAAEAAgACAAMAAwAEAAQABQAFAAYABgAHAAcACAAIAAkACQAKAAoACwALAAwADQAOAA4ADwAPABAAEAARABEAEgASABMAEwAUABQAFQAVABYAFgAXABcAGAAYABkAAGB+ujX4Nj89Ud0/UBBgPL7AMT+8Y94/sxm3PNS6JD/nJuA/V6DVPOBgET9xceI/yfrTPJpa8j4MGuU/wIe6PAo1uz5p9+c/8KWRPOVFgD464Oo/IGhDPPwDCT4yq+0/V0PMO6DirTwCL/A/bK/hOgzDpr1cQvI/6NoZuulrLL7yu/M/YIisOSx5b751cvQ/gPKzO9NPi76XPPQ/AAABAAEAAgACAAMAAwAEAAQABQAFAAYABgAHAAcACAAIAAkACQAKAAoACwALAAwA"
+        }
+    ]
+}

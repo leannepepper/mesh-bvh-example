@@ -13,7 +13,8 @@ const fragmentShader = `
 uniform float size;
 
 float circleSDF(vec2 st) {
-    return length(st) - 0.5 * 0.5;
+    float pct = distance(st + vec2(0.5 + (st.x / 0.5), 0.5 + (st.y * 0.4)), vec2(0.5,0.5));
+    return pct * 0.14;
 }
 
 float stroke(float x, float start, float width) {
