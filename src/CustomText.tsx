@@ -98,7 +98,7 @@ const Letter = (props) => {
   return (
     <primitive
       object={letterMesh}
-      position={[0, 0, -1]}
+      position={[1.5, 0, -1]}
       rotation={[0, -Math.PI / 2, 0]}
     />
   );
@@ -130,11 +130,11 @@ const getBranchMesh = (
 
   const branchResolution = 20;
   const normalizedCylinder = new THREE.CylinderGeometry(
-    1,
-    1,
-    1,
+    2,
+    2,
+    2,
     branchResolution, // radialSegments
-    numVertices * 2 // heightSegments
+    numVertices * 15 // heightSegments
   );
 
   const branchMesh = new THREE.Mesh(normalizedCylinder, branchMaterial);
@@ -167,6 +167,7 @@ const verticesFromLineSegment = (line: THREE.LineSegments): PathVertices => {
       )
     );
   }
+
   // remove duplicates from vertices
   const uniqueVertices = vertices.filter((v, i) => {
     return vertices.findIndex((v2) => v2.equals(v)) === i;
